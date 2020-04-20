@@ -27,6 +27,7 @@ typedef enum
 
 /* Variables -------------------------------------------------------------------------------*/
 
+uint32_t command;
 uint32_t process = MODE_NULL;
 kfile_setting_t setting =
 {
@@ -70,8 +71,6 @@ void closeSerial( void )
 
 int main( int argc, char **argv )
 {
-    uint32_t command;
-
     // get current path
     kFile_GetPath(&setting);
 
@@ -180,6 +179,28 @@ int main( int argc, char **argv )
         case COMMAND_BTCONFIG:
         {
             printf("  >> bluetooth config mode\n");
+            // TODO: [1] baudrate setting      ... ks -bt 115200
+            // TODO: [2] show at command list  ... ctrl+l
+            // TODO: [2] send with \r\n        ... ks -bt 115200 \rn
+            // resetting baudrate
+            Serial_SetBaudrate(&s, 115200);
+            if (Serial_OpenComport(&s) != KS_OK)
+            {
+                printf("\n  open serial error (COM%d)\n", s.port);
+                return KS_ERROR;
+            }
+            process = MODE_BTCONFIG;
+            break;
+        }
+        case COMMAND_HC05CONFIG:
+        {
+            printf("  >> bluetooth hc05 config mode\n");
+            Serial_SetBaudrate(&s, 38400);
+            if (Serial_OpenComport(&s) != KS_OK)
+            {
+                printf("\n  open serial error (COM%d)\n", s.port);
+                return KS_ERROR;
+            }
             process = MODE_BTCONFIG;
             break;
         }
@@ -373,30 +394,55 @@ void runTerminal( void )
 
     while (process == MODE_BTCONFIG)
     {
+        #define BT_BUFFER_LENS  (64U)
         uint32_t sendIdx = 0;
-        uint8_t sendBuf[256] = {0};
-        uint8_t recvBuf[256] = {0};
+        uint8_t sendBuf[BT_BUFFER_LENS] = {0};
+        uint8_t recvBuf[BT_BUFFER_LENS] = {0};
         while (1)
         {
             // recv data
             char key = getKey();
             if (key == 13)
             {
-                printf("\n");
-                sendBuf[++sendIdx] = '\r';
-                sendBuf[++sendIdx] = '\n';
-                Serial_Flush(&s);
+                printf("\n>> ");
+                if (command == COMMAND_HC05CONFIG)
+                {
+                    sendBuf[sendIdx++] = '\r';
+                    sendBuf[sendIdx++] = '\n';
+                }
+
+                // Serial_Flush(&s);
                 Serial_SendData(&s, sendBuf, sendIdx);
-                Serial_Delay(1000);
-                uint32_t nbytes = Serial_RecvData(&s, recvBuf, 256);
+                Serial_Delay(800);
+                uint32_t nbytes = Serial_RecvData(&s, recvBuf, BT_BUFFER_LENS);
                 recvBuf[nbytes] = 0;
-                printf(">> %s\n\n", recvBuf);
+                printf("%s\n\n", recvBuf);
                 sendIdx = 0;
             }
             else if (key == 8)  // back
             {
                 sendIdx--;
-                printf("%c", key);
+                const char back[4] = {8, ' ', 8, 0};
+                printf("%s", back);
+            }
+            else if (key == 0x0C)  // ctrl + l
+            {
+                sendIdx = 0;
+                printf("\n\n");
+                printf("  >> AT Command List\n\n");
+                printf("  AT+VERSION, Get the AT version\n");
+                printf("  AT+NAMEname, set device name to ""name""\n");
+                printf("  AT+PINxxxx, set password to ""xxxx""\n");
+                printf("  AT+BAUD4, set baudrate to 9600\n");
+                printf("  AT+BAUD5, set baudrate to 19200\n");
+                printf("  AT+BAUD6, set baudrate to 38400\n");
+                printf("  AT+BAUD7, set baudrate to 57600\n");
+                printf("  AT+BAUD8, set baudrate to 115200\n");
+                printf("  AT+BAUD9, set baudrate to 230400\n");
+                printf("  AT+BAUDA, set baudrate to 460800\n");
+                printf("  AT+BAUDB, set baudrate to 921600\n");
+                printf("  AT+BAUDC, set baudrate to 1382400\n");
+                printf("\n\n");
             }
             else if (key != 0)
             {

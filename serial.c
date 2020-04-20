@@ -153,6 +153,12 @@ void Serial_CloseComport( serial_t *serial )
     CloseHandle(serial->handle);
 }
 
+void Serial_SetBaudrate( serial_t *serial, int baudrate )
+{
+    CloseHandle(serial->handle);
+    serial->cfg.baudrate = baudrate;
+}
+
 int Serial_GetComportList( comport_list_t *list )
 {
     HKEY hKey;

@@ -104,11 +104,17 @@ uint32_t kCommand_GetCommand( char *commandString )
     {
         return COMMAND_KSERIAL;
     }
-    // >> ks -blecondig
+    // >> ks -btconfig
     if ((strcmp("-bt", commandString) == 0) || (strcmp("-BT", commandString) == 0) ||
         (strcmp("-btconfig", commandString) == 0) || (strcmp("-BTCONFIG", commandString) == 0))
     {
         return COMMAND_BTCONFIG;
+    }
+    // >> ks -hc05
+    if ((strcmp("-hc05", commandString) == 0) || (strcmp("-HC05", commandString) == 0) ||
+        (strcmp("-hc05config", commandString) == 0) || (strcmp("-HC05CONFIG", commandString) == 0))
+    {
+        return COMMAND_HC05CONFIG;
     }
     // >> ks -debug
     if ((strcmp("-d", commandString) == 0) || (strcmp("-D", commandString) == 0) ||

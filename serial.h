@@ -173,6 +173,7 @@ void        Serial_Delay( uint32_t ms );
 
 int         Serial_OpenComport( serial_t *serial );
 void        Serial_CloseComport( serial_t *serial );
+void        Serial_SetBaudrate( serial_t *serial, int baudrate );
 int         Serial_GetComportList( comport_list_t *list );
 void        Serial_FreeComportList( comport_list_t *list );
 
