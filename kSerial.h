@@ -28,21 +28,21 @@
 /* Define ----------------------------------------------------------------------------------*/
 
 #ifndef KSERIAL_SEND_ENABLE
-#define KSERIAL_SEND_ENABLE             (0U)
+#define KSERIAL_SEND_ENABLE             (1U)
 #ifndef KS_MAX_SEND_BUFF_SIZE
 #define KS_MAX_SEND_BUFF_SIZE           (4096 + 32)
 #endif
 #endif
 
 #ifndef KSERIAL_RECV_ENABLE
-#define KSERIAL_RECV_ENABLE             (0U)
+#define KSERIAL_RECV_ENABLE             (1U)
 #ifndef KS_MAX_RECV_BUFF_SIZE
 #define KS_MAX_RECV_BUFF_SIZE           (4096 + 1024 + 32)
 #endif
 #endif
 
 #ifndef KSERIAL_TWI_ENABLE
-#define KSERIAL_TWI_ENABLE              (0U)
+#define KSERIAL_TWI_ENABLE              (1U)
 #endif
 #if KSERIAL_TWI_ENABLE
 #if !(KSERIAL_SEND_ENABLE && KSERIAL_RECV_ENABLE)
@@ -75,6 +75,9 @@ typedef struct
 } kserial_t;
 
 /* Extern ----------------------------------------------------------------------------------*/
+extern const uint32_t KS_TYPE_SIZE[16];
+extern const char KS_TYPE_STRING[16][4];
+
 /* Functions -------------------------------------------------------------------------------*/
 
 uint32_t    kSerial_GetTypeSize( uint32_t type );

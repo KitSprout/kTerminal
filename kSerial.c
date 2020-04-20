@@ -57,12 +57,29 @@ uint8_t ksSendBuff[KS_MAX_SEND_BUFF_SIZE] = {0};
 uint8_t ksRecvBuff[KS_MAX_RECV_BUFF_SIZE] = {0};
 #endif
 
+const uint32_t KS_TYPE_SIZE[16] = {
+    1, 2, 4, 8,
+    1, 2, 4, 8,
+    0, 2, 4, 8,
+    0, 0, 0, 0
+};
+
+const char KS_TYPE_STRING[16][4] = {
+    "I8", "I16", "I32", "I64",
+    "U8", "U16", "U32", "U64",
+    "R0", "F16", "F32", "F64",
+    "R1", "R2",  "R3",  "R4",
+};
+
 /* Prototypes ------------------------------------------------------------------------------*/
 /* Functions -------------------------------------------------------------------------------*/
 
 /**
  *  @brief  kSerial_GetTypeSize
  */
+#if 1
+#define kSerial_GetTypeSize(__TYPE)     KS_TYPE_SIZE[__TYPE]
+#else
 uint32_t kSerial_GetTypeSize( uint32_t type )
 {
     type &= 0x0F;
@@ -75,6 +92,7 @@ uint32_t kSerial_GetTypeSize( uint32_t type )
         return (1 << (type & 0x03));
     }
 }
+#endif
 
 /**
  *  @brief  kSerial_CheckHeader
@@ -239,6 +257,11 @@ uint32_t kSerial_UnpackBuffer( const uint8_t *buffer, const uint32_t index, kser
             }
             ksp[*count].data = (void *)malloc(ksp[*count].nbyte * sizeof(uint8_t));
             kSerial_GetBytesData(&buffer[offset], ksp[*count].data, ksp[*count].nbyte);
+            uint32_t typesize = kSerial_GetTypeSize(ksp[*count].type);
+            if (typesize > 1)
+            {
+                ksp[*count].lens = ksp[*count].nbyte / typesize;
+            }
             offset += ksp[*count].nbyte + 8;
             newindex = offset - 1;
             (*count)++;

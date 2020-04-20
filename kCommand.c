@@ -104,6 +104,12 @@ uint32_t kCommand_GetCommand( char *commandString )
     {
         return COMMAND_KSERIAL;
     }
+    // >> ks -blecondig
+    if ((strcmp("-bt", commandString) == 0) || (strcmp("-BT", commandString) == 0) ||
+        (strcmp("-btconfig", commandString) == 0) || (strcmp("-BTCONFIG", commandString) == 0))
+    {
+        return COMMAND_BTCONFIG;
+    }
     // >> ks -debug
     if ((strcmp("-d", commandString) == 0) || (strcmp("-D", commandString) == 0) ||
         (strcmp("-debug", commandString) == 0) || (strcmp("-DEBUG", commandString) == 0))
