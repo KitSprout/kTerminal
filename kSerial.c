@@ -8,7 +8,6 @@
  * 
  *  @file    kSerial.c
  *  @author  KitSprout
- *  @date    Mar-2020
  *  @brief   kSerial packet format :
  *           byte 1   : header 'K' (75)       [HK]
  *           byte 2   : header 'S' (83)       [HS]

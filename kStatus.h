@@ -8,7 +8,6 @@
  * 
  *  @file    kStatus.h
  *  @author  KitSprout
- *  @date    Mar-2020
  *  @brief   
  * 
  */

@@ -8,7 +8,6 @@
  * 
  *  @file    kLogger.h
  *  @author  KitSprout
- *  @date    Jan-2020
  *  @brief   
  * 
  */

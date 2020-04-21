@@ -8,7 +8,6 @@
  * 
  *  @file    kSerial.h
  *  @author  KitSprout
- *  @date    Jan-2020
  *  @brief   
  * 
  */

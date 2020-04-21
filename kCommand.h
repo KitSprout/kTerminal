@@ -8,7 +8,6 @@
  * 
  *  @file    kCommand.h
  *  @author  KitSprout
- *  @date    Mar-2020
  *  @brief   
  * 
  */
@@ -39,6 +38,8 @@ typedef enum
     COMMAND_LIST,
     COMMAND_PORT,
     COMMAND_BAUDRATE,
+    COMMAND_VERSION,
+
     COMMAND_UART,
     COMMAND_I2C,
     COMMAND_KSERIAL,

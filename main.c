@@ -1,3 +1,16 @@
+/**
+ *      __            ____
+ *     / /__ _  __   / __/                      __  
+ *    / //_/(_)/ /_ / /  ___   ____ ___  __ __ / /_ 
+ *   / ,<  / // __/_\ \ / _ \ / __// _ \/ // // __/ 
+ *  /_/|_|/_/ \__//___// .__//_/   \___/\_,_/ \__/  
+ *                    /_/   github.com/KitSprout    
+ * 
+ *  @file    main.c
+ *  @author  KitSprout
+ *  @brief   
+ * 
+ */
 
 /* Includes --------------------------------------------------------------------------------*/
 #include <stdlib.h>
@@ -11,6 +24,9 @@
 #include "kCommand.h"
 
 /* Define ----------------------------------------------------------------------------------*/
+
+#define FIRMWARE_VERSION    "v0.1a"
+
 /* Macro -----------------------------------------------------------------------------------*/
 /* Typedef ---------------------------------------------------------------------------------*/
 
@@ -106,6 +122,11 @@ int main( int argc, char **argv )
     // command (without serial)
     switch (command)
     {
+        case COMMAND_VERSION:
+        {
+            printf("  version: %s\n", FIRMWARE_VERSION);
+            return KS_OK;
+        }
         case COMMAND_INFO:
         {
             return kCommand_GetSettingInformation();
@@ -394,7 +415,7 @@ void runTerminal( void )
 
     while (process == MODE_BTCONFIG)
     {
-        #define BT_BUFFER_LENS  (64U)
+        #define BT_BUFFER_LENS  (256U)
         uint32_t sendIdx = 0;
         uint8_t sendBuf[BT_BUFFER_LENS] = {0};
         uint8_t recvBuf[BT_BUFFER_LENS] = {0};
@@ -404,20 +425,25 @@ void runTerminal( void )
             char key = getKey();
             if (key == 13)
             {
-                printf("\n>> ");
+                // Serial_Flush(&s);
+                if (sendIdx == 0)
+                {
+                    sendBuf[sendIdx++] = 'A';
+                    sendBuf[sendIdx++] = 'T';
+                    printf("AT");
+                }
                 if (command == COMMAND_HC05CONFIG)
                 {
                     sendBuf[sendIdx++] = '\r';
                     sendBuf[sendIdx++] = '\n';
                 }
-
-                // Serial_Flush(&s);
+                printf("\n>> ");
                 Serial_SendData(&s, sendBuf, sendIdx);
+                sendIdx = 0;
                 Serial_Delay(800);
                 uint32_t nbytes = Serial_RecvData(&s, recvBuf, BT_BUFFER_LENS);
                 recvBuf[nbytes] = 0;
                 printf("%s\n\n", recvBuf);
-                sendIdx = 0;
             }
             else if (key == 8)  // back
             {

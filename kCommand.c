@@ -8,7 +8,6 @@
  * 
  *  @file    kCommand.c
  *  @author  KitSprout
- *  @date    Mar-2020
  *  @brief   
  * 
  */
@@ -43,6 +42,13 @@ uint32_t kCommand_GetCommand( char *commandString )
         return COMMAND_ERROR;
     }
 
+    // >> ks -version
+    if ((strcmp("-v", commandString) == 0) || (strcmp("-V", commandString) == 0) ||
+        (strcmp("-version", commandString) == 0) || (strcmp("-VERSION", commandString) == 0))
+    {
+        return COMMAND_VERSION;
+    }
+    // >> ks -help
     if ((strcmp("-h", commandString) == 0) || (strcmp("-H", commandString) == 0) ||
         (strcmp("-help", commandString) == 0) || (strcmp("-HELP", commandString) == 0))
     {
@@ -130,14 +136,18 @@ uint32_t kCommand_Help( void )
 {
     printf("\n");
     printf("  -INFO                             ... show configuration\n");
+    printf("  -VERSION                          ... show firmware version\n");
     printf("  -AUTO                             ... select available port automatically\n");
     printf("  -LIST                             ... show serial comport list\n");
     printf("  -PORT [PORT or COMx]              ... serial comport setting\n");
     printf("  -PORT [PORT or COMx] [BAUDRATE]   ... serial comport and baudrate setting\n");
     printf("  -BAUDRATE LIST                    ... show internal baudrate list\n");
     printf("  -BAUDRATE [BAUDRATE]              ... serial baudrate setting\n");
-
-    printf("\n  *** TODO\n");
+    printf("\n");
+    printf("  > MODE\n");
+    printf("  -BT                               ... send at command\n");
+    printf("  -HC05                             ... send command with \\r\\n\n");
+    printf("  --- TODO\n");
     printf("  -UART                             ... into uart terminal mode\n");
     printf("  -I2C                              ... into i2c mode\n");
     printf("  -KSERIAL                          ... into kserial mode\n");

@@ -8,7 +8,6 @@
  * 
  *  @file    kFile.c
  *  @author  KitSprout
- *  @date    Mar-2020
  *  @brief   
  * 
  */
