@@ -1,16 +1,14 @@
 # kTerminal
 
   -HELP                             ... show commond list  
-  -INFO                             ... show configuration  
-  -AUTO                             ... select available port automatically  
-  -LIST                             ... show serial comport list  
-  -PORT [PORT or COMx]              ... serial comport setting  
-  -PORT [PORT or COMx] [BAUDRATE]   ... serial comport and baudrate setting  
-  -BAUDRATE LIST                    ... show internal baudrate list  
-  -BAUDRATE [BAUDRATE]              ... serial baudrate setting  
+  -INFO                              ... show configuration
+  -VERSION                           ... show firmware version
+  -AUTO                              ... select available port automatically
+  -PORT LIST                         ... show serial comport list
+  -PORT [PORT/COMx]                  ... serial comport setting
+  -PORT [PORT/COMx] [BAUDRATE]       ... serial comport and baudrate setting
+  -BAUD LIST                         ... show internal baudrate list
+  -BAUD [BAUDRATE]                   ... serial baudrate setting
 
-  *** TODO  
-  -UART                             ... into uart mode  
-  -I2C                              ... into i2c mode  
-  -KSERIAL                          ... into kserial mode  
+  -TERMINAL                          ... uart terminal mode
   
