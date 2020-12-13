@@ -79,7 +79,7 @@ uint32_t kFile_LoadSetting( kfile_setting_t *cfg )
         return KS_OK;
     }
     klogd("  open setting file error ... create new\n");
-    printf("  path ... %s\n\n", cfg->path);
+    klogd("  path ... %s\n\n", cfg->path);
     fp = fopen(filename, "ab");
     *cfg->port     = DEFAULT_COMPORT;
     *cfg->baudrate = DEFAULT_BAUDRATE;

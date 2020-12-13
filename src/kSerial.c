@@ -414,15 +414,15 @@ uint32_t kSerial_SendCommand( uint32_t type, uint32_t p1, uint32_t p2, uint32_t 
 #if KSERIAL_RECV_ENABLE
     if (ack != NULL)
     {
-#if 1
+#if 0
         nbytes = 0;
         while (nbytes == 0)
         {
-            kSerial_Delay(100);
+            kSerial_Delay(50);
             nbytes = kSerial_Recv(ksRecvBuf, KS_MAX_RECV_BUFFER_SIZE);
         }
 #else
-        kSerial_Delay(100);
+        kSerial_Delay(50);
         nbytes = kSerial_Recv(ksRecvBuf, KS_MAX_RECV_BUFFER_SIZE);
 #endif
         status = kSerial_Unpack(ksRecvBuf, param, ack, &nbytes, ksSendBuf);
@@ -488,55 +488,6 @@ uint32_t kSerial_TwiWriteReg( uint8_t slaveAddr, uint8_t regAddr, uint8_t regDat
 }
 
 /**
- *  @brief  kSerial_TwiReadReg
- *  Send packet ['K', 'S', R1, 1, slaveAddress(8-bit)+1, regAddress, ck, 1, '\r']
- *  Recv packet ['K', 'S', R1, 1, slaveAddress(8-bit)+1, regAddress, ck, regData, '\r']
- */
-uint32_t kSerial_TwiReadReg( uint8_t slaveAddr, uint8_t regAddr, uint8_t *regData )
-{
-#if KSERIAL_CMD_ENABLE
-    uint8_t param[2] = {(slaveAddr << 1) + 1, regAddr};
-    uint32_t type = KS_R1;
-    uint32_t nbytes;
-    uint32_t status;
-    uint32_t singleRead = 1;
-
-    kSerial_RecvFlush();
-
-    nbytes = kSerial_Pack(ksSendBuf, param, type, 1, &singleRead);
-    kSerial_Send(ksSendBuf, nbytes);
-
-    nbytes = 0;
-    while (nbytes == 0)
-    {
-        kSerial_Delay(100);
-        nbytes = kSerial_Recv(ksRecvBuf, KS_MAX_RECV_BUFFER_SIZE);
-    }
-
-    // TODO: check i2cbuff first 'KS'
-    status = kSerial_Unpack(ksRecvBuf, param, &type, &nbytes, ksSendBuf);
-    if (status == KS_OK)
-    {
-        for (uint32_t i = 0; i < nbytes; i++)
-        {
-            regData[i] = ksSendBuf[i];
-        }
-#if 0
-        klogd("[R] param = %02X, %02X, type = %d, bytes = %d, data =", param[0], param[1], type, nbytes + 8);
-        for (uint32_t i = 0; i < nbytes; i++)
-        {
-            klogd(" %02X", i2cbuff[1][i]);
-        }
-        klogd("\n");
-#endif
-    }
-    return status;
-#else
-    return KS_ERROR;
-#endif
-}
-
-/**
  *  @brief  kSerial_TwiReadRegs
  *  Send packet ['K', 'S', R1,    1, slaveAddress(8-bit)+1, regAddress, ck, lens, '\r']
  *  Recv packet ['K', 'S', R1, lens, slaveAddress(8-bit)+1, regAddress, ck, regData ..., '\r']
@@ -585,6 +536,30 @@ uint32_t kSerial_TwiReadRegs( uint8_t slaveAddr, uint8_t regAddr, uint8_t *regDa
 }
 
 /**
+ *  @brief  kSerial_TwiWriteRegs
+ *  Send packet ['K', 'S', R1, lens, slaveAddress(8-bit), regAddress, ck, regData ... , '\r']
+ */
+uint32_t kSerial_TwiWriteRegs( uint8_t slaveAddr, uint8_t regAddr, uint8_t *regData, uint8_t lens )
+{
+#if KSERIAL_CMD_ENABLE
+    uint8_t param[2] = {slaveAddr << 1, regAddr};
+    uint32_t type = KS_R1;
+    uint32_t nbytes;
+
+    kSerial_RecvFlush();
+
+    nbytes = kSerial_Pack(ksSendBuf, param, type, lens, regData);
+    kSerial_Send(ksSendBuf, nbytes);
+#if 0
+    klogd("[W] param = %02X, %02X, type = %d, bytes = %d, data = %02X\n", param[0], param[1], type, nbytes, wdata);
+#endif
+    return nbytes;
+#else
+    return KS_ERROR;
+#endif
+}
+
+/**
  *  @brief  kSerial_TwiScanDevice
  *  Send packet ['K', 'S', R2,    0, 0xA1, 0, ck, '\r']
  *  Recv packet ['K', 'S', R2, lens, 0xA1, 0, ck, address ..., '\r']
@@ -615,13 +590,13 @@ uint32_t kSerial_TwiScanDevice( uint8_t *slaveAddr )
             slaveAddr[i] = ksSendBuf[i];
         }
 #if 0
-        printf(" >> i2c device list (found %d device)\n\n", count);
-        printf("    ");
+        klogd(" >> i2c device list (found %d device)\n\n", count);
+        klogd("    ");
         for (uint32_t i = 0; i < count; i++)
         {
-            printf(" %02X", slaveAddr[i]);
+            klogd(" %02X", slaveAddr[i]);
         }
-        printf("\n\n");
+        klogd("\n\n");
 #endif
     }
     else
@@ -664,12 +639,12 @@ uint32_t kSerial_TwiScanRegister( uint8_t slaveAddr, uint8_t reg[256] )
             reg[i] = ksSendBuf[i];
         }
 #if 0
-        printf("\n");
-        printf(" >> i2c device register (address 0x%02X)\n\n", slaveAddr);
-        printf("      0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
+        klogd("\n");
+        klogd(" >> i2c device register (address 0x%02X)\n\n", slaveAddr);
+        prklogdintf("      0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F\n");
         for (uint32_t i = 0; i < 256; i += 16)
         {
-            printf(" %02X: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
+            klogd(" %02X: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
                 i,
                 reg[i +  0], reg[i +  1], reg[i +  2], reg[i +  3],
                 reg[i +  4], reg[i +  5], reg[i +  6], reg[i +  7],
@@ -677,7 +652,7 @@ uint32_t kSerial_TwiScanRegister( uint8_t slaveAddr, uint8_t reg[256] )
                 reg[i + 12], reg[i + 13], reg[i + 14], reg[i + 15]
             );
         }
-        printf("\n\n");
+        klogd("\n\n");
 #endif
     }
     return status;

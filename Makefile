@@ -26,26 +26,41 @@ TARGET  := ks
 OBJ_DIR := obj
 SRC_DIR := src
 INC_DIR := inc
+CMD_DIR := command
 OUT_DIR := out
 
-SRC =	main.c \
-		serial.c \
+MAIN =	main.c
+SRC =	serial.c \
 		kString.c \
 		kSerial.c \
 		kFile.c \
 		kCommand.c \
 		kLogger.c
+CMD =	kCommandHelp.c \
+		kCommandTarget.c \
+		kCommandTwi.c
 
-INCS := -I $(INC_DIR)
-
-OBJS := $(SRC:%.c=$(OBJ_DIR)$(SP)%.o)
+SRCS := $(MAIN) \
+		$(SRC) \
+		$(CMD)
+INCS := -I $(INC_DIR) \
+		-I $(CMD_DIR)
+OBJS := $(MAIN:%.c=$(OBJ_DIR)$(SP)%.o) \
+		$(SRC:%.c=$(OBJ_DIR)$(SP)%.o) \
+		$(CMD:%.c=$(OBJ_DIR)$(SP)%.o)
 
 $(TARGET): $(OBJS)
-	$(CC) -o $(OUT_DIR)$(SP)$(TARGET) $(OBJS)
+	$(CC) -o $(OUT_DIR)$(SP)$(TARGET) $(OBJS) $(INCS)
 	@echo build program ... done ($(TARGET).exe)
 
 $(OBJ_DIR)$(SP)%.o: %.c
-	$(CC) $(CFLAGS) $(CFGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
+
+$(OBJ_DIR)$(SP)%.o: $(SRC_DIR)$(SP)%.c
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
+
+$(OBJ_DIR)$(SP)%.o: $(CMD_DIR)$(SP)%.c
+	$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
 
 
 .PHONY: clean

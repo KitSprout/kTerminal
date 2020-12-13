@@ -81,7 +81,7 @@ uint32_t scanSerialPort( void )
 {
     if (Serial_GetComportList(&cplist) != KS_OK)
     {
-        printf("\n  scan comport error\n");
+        klogd("\n  scan comport error\n");
         return KS_ERROR;
     }
     return KS_OK;
@@ -137,8 +137,7 @@ int main( int argc, char **argv )
         }
         case COMMAND_VERSION:
         {
-            klogd("  >> version: %s\n", FIRMWARE_VERSION);
-            return KS_OK;
+            return kCommand_GetVersion(FIRMWARE_VERSION);
         }
         case COMMAND_INFO:
         {
@@ -170,8 +169,8 @@ int main( int argc, char **argv )
         }
         case COMMAND_TERMINAL_AUTO:
         {
-            klogd("  >> uart terminal mode\n");
             kCommand_UartConfigureAutomatic();
+            klogd("  >> uart terminal mode\n");
             if (openSerialPort() != KS_OK)
             {
                 return KS_ERROR;
@@ -199,6 +198,49 @@ int main( int argc, char **argv )
         {
             klogd("  >> uart terminal mode\n");
             kCommand_UartTerminalProcess(NULL);
+            break;
+        }
+        case COMMAND_CHECK:
+        {
+            kCommand_CheckDevice();
+            break;
+        }
+        case COMMAND_SCAN:
+        {
+            kCommand_TwiScanDevice();
+            break;
+        }
+        case COMMAND_REG:
+        {
+            if (argc < 3)
+            {
+                klogd("  >> not enough input arguments\n\n");
+                kCommand_HelpReg();
+                return KS_ERROR;
+            }
+            kCommand_TwiScanRegister(argv[2]);
+            break;
+        }
+        case COMMAND_READ:
+        {
+            if (argc < 4)
+            {
+                klogd("  >> not enough input arguments\n\n");
+                kCommand_HelpRead();
+                return KS_ERROR;
+            }
+            kCommand_TwiRead(argv[2], argv[3], argv[4]);
+            break;
+        }
+        case COMMAND_WRITE:
+        {
+            if (argc < 5)
+            {
+                klogd("  >> not enough input arguments\n\n");
+                kCommand_HelpWrite();
+                return KS_ERROR;
+            }
+            kCommand_TwiWrite(argv[2], argv[3], &argv[4], argc - 4);
             break;
         }
         case COMMAND_DEBUG:

@@ -18,6 +18,7 @@
 #include <conio.h>
 
 #include "serial.h"
+#include "kStatus.h"
 #include "kCommand.h"
 #include "kString.h"
 #include "kSerial.h"
@@ -88,6 +89,32 @@ uint32_t kCommand_GetCommand( const char *command )
     {
         return COMMAND_TERMINAL_AUTO;
     }
+    // >> ks -check
+    if (/*(strcmp("-c", cmd) == 0) ||*/ strcmp("-check", cmd) == 0)
+    {
+        return COMMAND_CHECK;
+    }
+    // >> ks -scan
+    if (/*(strcmp("-s", cmd) == 0) ||*/ strcmp("-scan", cmd) == 0)
+    {
+        return COMMAND_SCAN;
+    }
+    // >> ks -reg [address]
+    if (/*(strcmp("-r", cmd) == 0) ||*/ strcmp("-reg", cmd) == 0)
+    {
+        return COMMAND_REG;
+    }
+    // >> ks -read [address] [register]
+    // >> ks -read [address] [register] [lenght]
+    if ((strcmp("-r", cmd) == 0) || strcmp("-read", cmd) == 0)
+    {
+        return COMMAND_READ;
+    }
+    // >> ks -write [address] [register] [data]
+    if ((strcmp("-w", cmd) == 0) || strcmp("-write", cmd) == 0)
+    {
+        return COMMAND_WRITE;
+    }
     // >> ks -debug
     if ((strcmp("-d", cmd) == 0) || (strcmp("-debug", cmd) == 0))
     {
@@ -99,28 +126,33 @@ uint32_t kCommand_GetCommand( const char *command )
 uint32_t kCommand_Help( void )
 {
     klogd("\n");
-    klogd("  -INFO                              ... show configuration\n");
-    klogd("  -VERSION                           ... show firmware version\n");
-    klogd("  -AUTO                              ... select available port automatically\n");
+    klogd("  **** System Command\n");
+    kCommand_HelpInfo();
+    kCommand_HelpVersion();
+    kCommand_HelpAuto();
     kCommand_HelpPort();
     kCommand_HelpBaud();
+    kCommand_HelpTerminal();
     klogd("\n");
-    klogd("  -TERMINAL                          ... uart terminal mode\n");
+    klogd("  **** Target Command\n");
+    kCommand_HelpCheck();
+    klogd("\n");
+    klogd("  **** I2C Command\n");
+    kCommand_HelpScan();
+    kCommand_HelpReg();
+    kCommand_HelpRead();
+    kCommand_HelpWrite();
+
+    // TODO: 
+    // set target baudrate
+    // set target sampling rate
+    // set target mode
     return KS_OK;
 }
 
-uint32_t kCommand_HelpPort( void )
+uint32_t kCommand_GetVersion( char *version )
 {
-    klogd("  -PORT LIST                         ... show serial comport list\n");
-    klogd("  -PORT [PORT/COMx]                  ... serial comport setting\n");
-    klogd("  -PORT [PORT/COMx] [BAUDRATE]       ... serial comport and baudrate setting\n");
-    return KS_OK;
-}
-
-uint32_t kCommand_HelpBaud( void )
-{
-    klogd("  -BAUD LIST                         ... show internal baudrate list\n");
-    klogd("  -BAUD [BAUDRATE]                   ... serial baudrate setting\n");
+    klogd("  >> version: %s\n", version);
     return KS_OK;
 }
 
@@ -158,7 +190,7 @@ static int menuSelect( uint32_t maxlens )
     }
     if ((select == 27) || (select == 'q') || (select == 'Q'))
     {
-        printf("  >> exit\n");
+        klogd("  >> exit\n");
         return -1;
     }
     else if ((select < 48) || (select > 57))
@@ -168,7 +200,7 @@ static int menuSelect( uint32_t maxlens )
     }
     else if (select == '0')
     {
-        printf("  >> default\n");
+        klogd("  >> default\n");
     }
     return value;
 }
@@ -260,7 +292,7 @@ uint32_t kCommand_UartComportConfigure( char *portString, char *baudrateString )
     }
     if (port <= 0)
     {
-        printf("  wrong input\n");
+        klogd("  wrong input\n");
         return KS_ERROR;
     }
     return updateUartSetting(port, baudrate);
@@ -272,12 +304,12 @@ uint32_t kCommand_UartBaudrateConfigure( char *baudrateString )
     if (strcmpLowercase("list", baudrateString) == KS_OK)
     {
         // print list
-        printf("\n");
+        klogd("\n");
         for (uint32_t i = 0; i < BAUDRATE_LIST_MAX_LENS; i++)
         {
-            printf("  [%2d] %7d bps\n", i + 1, baudratelist[i]);
+            klogd("  [%2d] %7d bps\n", i + 1, baudratelist[i]);
         }
-        printf("\n");
+        klogd("\n");
         // select port
         baudrate = menuSelect(BAUDRATE_LIST_MAX_LENS);
         if (baudrate < 0)
@@ -295,7 +327,7 @@ uint32_t kCommand_UartBaudrateConfigure( char *baudrateString )
     }
     if (baudrate <= 0)
     {
-        printf("  wrong input\n");
+        klogd("  wrong input\n");
         return KS_ERROR;
     }
     return updateUartSetting(-1, baudrate);
@@ -305,7 +337,7 @@ uint32_t kCommand_UartBaudrateConfigure( char *baudrateString )
 uint32_t kCommand_UartTerminalProcess( char **argv )
 {
     char buf[UART_RECV_MAX_BUFFER_SIZE] = {0};
-    uint32_t loop = 1;
+    uint32_t loop = KS_TRUE;
     uint32_t lens;
 
     kSerial_RecvFlush();
@@ -323,14 +355,14 @@ uint32_t kCommand_UartTerminalProcess( char **argv )
             {
                 case 17:    // ctrl + q
                 {
-                    printf("\n  >> exit\n");
-                    loop = 0;
+                    klogd("\n  >> exit\n");
+                    loop = KS_FALSE;
                     break;
                 }
                 case 19:    // ctrl + S
                 {
                     // TODO: save log
-                    puts("\n  >> save file\n");
+                    klogd("\n  >> save file\n");
                     kSerial_Delay(100);
                     break;
                 }

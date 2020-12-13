@@ -129,9 +129,8 @@ void        kSerial_GetPacketData( kserial_packet_t *ksp, void *pdata, uint32_t 
 uint32_t    kSerial_SendCommand( uint32_t type, uint32_t p1, uint32_t p2, uint32_t ack[3] );
 uint32_t    kSerial_DeviceCheck( uint32_t *id );
 
-uint32_t    kSerial_TwiWriteReg( uint8_t slaveAddr, uint8_t regAddr, uint8_t regData );
-uint32_t    kSerial_TwiReadReg( uint8_t slaveAddr, uint8_t regAddr, uint8_t *regData );
 uint32_t    kSerial_TwiReadRegs( uint8_t slaveAddr, uint8_t regAddr, uint8_t *regData, uint8_t lens );
+uint32_t    kSerial_TwiWriteRegs( uint8_t slaveAddr, uint8_t regAddr, uint8_t *regData, uint8_t lens );
 uint32_t    kSerial_TwiScanDevice( uint8_t *slaveAddr );
 uint32_t    kSerial_TwiScanRegister( uint8_t slaveAddr, uint8_t reg[256] );
 
