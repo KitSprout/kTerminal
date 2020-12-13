@@ -17,7 +17,7 @@
 #define __SERIAL_H
 
 #ifdef __cplusplus
-    extern "C" {
+extern "C" {
 #endif
 
 /* Includes --------------------------------------------------------------------------------*/
@@ -138,6 +138,7 @@ typedef struct
 
     char name[8];
 
+    uint32_t isConnected;
     uint32_t txBufferSize;
     uint32_t rxBufferSize;
 

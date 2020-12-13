@@ -17,9 +17,12 @@
 #include <stdio.h>
 #include <conio.h>
 
-#include "kCommand.h"
-#include "kFile.h"
 #include "serial.h"
+#include "kCommand.h"
+#include "kString.h"
+#include "kSerial.h"
+#include "kFile.h"
+#include "kLogger.h"
 
 /* Define ----------------------------------------------------------------------------------*/
 /* Macro -----------------------------------------------------------------------------------*/
@@ -31,260 +34,242 @@ extern kfile_setting_t setting;
 /* Prototypes ------------------------------------------------------------------------------*/
 /* Functions -------------------------------------------------------------------------------*/
 
-uint32_t kCommand_GetCommand( char *commandString )
+uint32_t kCommand_GetCommand( const char *command )
 {
-    if (commandString == NULL)
+    char cmd[MAX_COMMAND_SIZE] = {0};
+    if (toLowercase(cmd, command) == KS_ERROR)
     {
         return COMMAND_NULL;
     }
-    else if (commandString[0] != '-')
+    else if (command[0] != '-')
     {
         return COMMAND_ERROR;
     }
-
-    // >> ks -version
-    if ((strcmp("-v", commandString) == 0) || (strcmp("-V", commandString) == 0) ||
-        (strcmp("-version", commandString) == 0) || (strcmp("-VERSION", commandString) == 0))
-    {
-        return COMMAND_VERSION;
-    }
     // >> ks -help
-    if ((strcmp("-h", commandString) == 0) || (strcmp("-H", commandString) == 0) ||
-        (strcmp("-help", commandString) == 0) || (strcmp("-HELP", commandString) == 0))
+    if ((strcmp("-h", cmd) == 0) || (strcmp("-help", cmd) == 0))
     {
         return COMMAND_HELP;
     }
+    // >> ks -version
+    if ((strcmp("-v", cmd) == 0) || (strcmp("-version", cmd) == 0))
+    {
+        return COMMAND_VERSION;
+    }
     // >> ks -info
-    if (/*(strcmp("-i", commandString) == 0) || (strcmp("-I", commandString) == 0) || */
-        (strcmp("-info", commandString) == 0) || (strcmp("-INFO", commandString) == 0))
+    if (/*(strcmp("-i", cmd) == 0) ||*/ (strcmp("-info", cmd) == 0))
     {
         return COMMAND_INFO;
     }
-    // >> ks -path
-    if (/*(strcmp("-i", commandString) == 0) || (strcmp("-I", commandString) == 0) || */
-        (strcmp("-path", commandString) == 0) || (strcmp("-PATH", commandString) == 0))
-    {
-        return COMMAND_PATH;
-    }
     // >> ks -auto
-    if (/*(strcmp("-a", commandString) == 0) || (strcmp("-A", commandString) == 0) || */
-        (strcmp("-auto", commandString) == 0) || (strcmp("-AUTO", commandString) == 0))
+    if ((strcmp("-a", cmd) == 0) || (strcmp("-auto", cmd) == 0))
     {
         return COMMAND_AUTO;
     }
-    // >> ks -list
-    if (/*(strcmp("-l", commandString) == 0) || (strcmp("-L", commandString) == 0) || */
-        (strcmp("-list", commandString) == 0) || (strcmp("-LIST", commandString) == 0))
-    {
-        return COMMAND_LIST;
-    }
-    // >> ks -port [PORT or COMx]
-    // >> ks -port [PORT or COMx] [BAUDRATE]
-    if (/*(strcmp("-p", commandString) == 0) || (strcmp("-P", commandString) == 0) || */
-        (strcmp("-port", commandString) == 0) || (strcmp("-PORT", commandString) == 0))
+    // >> ks -port list
+    // >> ks -port [PORT/COMx]
+    // >> ks -port [PORT/COMx] [BAUDRATE]
+    if (/*(strcmp("-p", cmd) == 0) ||*/ (strcmp("-port", cmd) == 0))
     {
         return COMMAND_PORT;
     }
-    // >> ks -baudrate list
-    // >> ks -baudrate [BAUDRATE]
-    if (/*(strcmp("-b", commandString) == 0) || (strcmp("-B", commandString) == 0) || */
-        (strcmp("-baudrate", commandString) == 0) || (strcmp("-BAUDRATE", commandString) == 0))
+    // >> ks -baud list
+    // >> ks -baud [BAUDRATE]
+    if (/*(strcmp("-b", cmd) == 0) ||*/ (strcmp("-baud", cmd) == 0))
     {
-        return COMMAND_BAUDRATE;
+        return COMMAND_BAUD;
     }
-    // >> ks -uart
-    if ((strcmp("-u", commandString) == 0) || (strcmp("-U", commandString) == 0) ||
-        (strcmp("-uart", commandString) == 0) || (strcmp("-UART", commandString) == 0))
+    // >> ks -terminal
+    if ((strcmp("-t", cmd) == 0) || (strcmp("-terminal", cmd) == 0))
     {
-        return COMMAND_UART;
+        return COMMAND_TERMINAL;
     }
-    // >> ks -i2c
-    if ((strcmp("-i", commandString) == 0) || (strcmp("-I", commandString) == 0) ||
-        (strcmp("-i2c", commandString) == 0) || (strcmp("-I2C", commandString) == 0))
+    // >> ks -ta
+    if (strcmp("-ta", cmd) == 0)
     {
-        return COMMAND_I2C;
-    }
-    // >> ks -kserial
-    if ((strcmp("-k", commandString) == 0) || (strcmp("-K", commandString) == 0) ||
-        (strcmp("-kserial", commandString) == 0) || (strcmp("-KSERIAL", commandString) == 0))
-    {
-        return COMMAND_KSERIAL;
-    }
-    // >> ks -btconfig
-    if ((strcmp("-bt", commandString) == 0) || (strcmp("-BT", commandString) == 0) ||
-        (strcmp("-btconfig", commandString) == 0) || (strcmp("-BTCONFIG", commandString) == 0))
-    {
-        return COMMAND_BTCONFIG;
-    }
-    // >> ks -hc05
-    if ((strcmp("-hc05", commandString) == 0) || (strcmp("-HC05", commandString) == 0) ||
-        (strcmp("-hc05config", commandString) == 0) || (strcmp("-HC05CONFIG", commandString) == 0))
-    {
-        return COMMAND_HC05CONFIG;
+        return COMMAND_TERMINAL_AUTO;
     }
     // >> ks -debug
-    if ((strcmp("-d", commandString) == 0) || (strcmp("-D", commandString) == 0) ||
-        (strcmp("-debug", commandString) == 0) || (strcmp("-DEBUG", commandString) == 0))
+    if ((strcmp("-d", cmd) == 0) || (strcmp("-debug", cmd) == 0))
     {
         return COMMAND_DEBUG;
     }
-
     return COMMAND_ERROR;
 }
 
 uint32_t kCommand_Help( void )
 {
-    printf("\n");
-    printf("  -INFO                             ... show configuration\n");
-    printf("  -VERSION                          ... show firmware version\n");
-    printf("  -AUTO                             ... select available port automatically\n");
-    printf("  -LIST                             ... show serial comport list\n");
-    printf("  -PORT [PORT or COMx]              ... serial comport setting\n");
-    printf("  -PORT [PORT or COMx] [BAUDRATE]   ... serial comport and baudrate setting\n");
-    printf("  -BAUDRATE LIST                    ... show internal baudrate list\n");
-    printf("  -BAUDRATE [BAUDRATE]              ... serial baudrate setting\n");
-    printf("\n");
-    printf("  > MODE\n");
-    printf("  -BT                               ... send at command\n");
-    printf("  -HC05                             ... send command with \\r\\n\n");
-    printf("  --- TODO\n");
-    printf("  -UART                             ... into uart terminal mode\n");
-    printf("  -I2C                              ... into i2c mode\n");
-    printf("  -KSERIAL                          ... into kserial mode\n");
+    klogd("\n");
+    klogd("  -INFO                              ... show configuration\n");
+    klogd("  -VERSION                           ... show firmware version\n");
+    klogd("  -AUTO                              ... select available port automatically\n");
+    kCommand_HelpPort();
+    kCommand_HelpBaud();
+    klogd("\n");
+    klogd("  -TERMINAL                          ... uart terminal mode\n");
+    return KS_OK;
+}
+
+uint32_t kCommand_HelpPort( void )
+{
+    klogd("  -PORT LIST                         ... show serial comport list\n");
+    klogd("  -PORT [PORT/COMx]                  ... serial comport setting\n");
+    klogd("  -PORT [PORT/COMx] [BAUDRATE]       ... serial comport and baudrate setting\n");
+    return KS_OK;
+}
+
+uint32_t kCommand_HelpBaud( void )
+{
+    klogd("  -BAUD LIST                         ... show internal baudrate list\n");
+    klogd("  -BAUD [BAUDRATE]                   ... serial baudrate setting\n");
     return KS_OK;
 }
 
 uint32_t kCommand_GetSettingInformation( void )
 {
-    printf("\n");
-    // printf("  Path                              ... %s\n", setting.path);
-    printf("  Port                              ... COM%d\n", *setting.port);
-    printf("  Baud Rate                         ... %d bps\n", *setting.baudrate);
-    printf("  Data Bits                         ... %d\n", *setting.databits);
-    printf("  Parity                            ... %s\n", serial_parity_string[*setting.parity]);
-    printf("  Stop Bits                         ... %d\n", *setting.stopbits);
-    printf("  Flow Control                      ... %s\n", serial_flowctrl_string[*setting.flowctrl]);
+    klogd("\n");
+    klogd("  Path                               ... %s\n", setting.path);
+    klogd("  Port                               ... COM%d\n", *setting.port);
+    klogd("  Baud Rate                          ... %d bps\n", *setting.baudrate);
+    klogd("  Data Bits                          ... %d\n", *setting.databits);
+    klogd("  Parity                             ... %s\n", serial_parity_string[*setting.parity]);
+    klogd("  Stop Bits                          ... %d\n", *setting.stopbits);
+    klogd("  Flow Control                       ... %s\n", serial_flowctrl_string[*setting.flowctrl]);
+    return KS_OK;
+}
+
+static char getKey( void )
+{
+    char ch = 0;
+    if (_kbhit())
+    {
+        ch = _getch();
+    }
+    return ch;
+}
+
+static int menuSelect( uint32_t maxlens )
+{
+    uint32_t select = getch();
+    uint32_t value = select - '0';
+    if (value > maxlens)
+    {
+        klogd("  not in list ... %d\n", value);
+        return -1;
+    }
+    if ((select == 27) || (select == 'q') || (select == 'Q'))
+    {
+        printf("  >> exit\n");
+        return -1;
+    }
+    else if ((select < 48) || (select > 57))
+    {
+        klogd("  wrong input ... \"%c\"(%d)\n", select, select);
+        return -1;
+    }
+    else if (select == '0')
+    {
+        printf("  >> default\n");
+    }
+    return value;
+}
+
+static uint32_t updateUartSetting( const int port, const int baudrate )
+{
+    if (port != -1)
+    {
+        s.port = port;
+    }
+    if (baudrate != -1)
+    {
+        s.cfg.baudrate = baudrate;
+    }
+    klogd("  >> set COM%d, baudrate %d bps\n", s.port, s.cfg.baudrate);
+    if (kFile_UpdateSetting(&setting) != KS_OK)
+    {
+        klogd("  update %s failed!!!\n", setting.filename);
+        return KS_ERROR;
+    }
     return KS_OK;
 }
 
 uint32_t kCommand_UartConfigureAutomatic( void )
 {
-    uint32_t status;
     if (cplist.num == 0)
     {
-        printf("  not available comport\n");
+        klogd("  not available comport\n");
         return KS_ERROR;
     }
-    s.port = cplist.port[0];
-    s.cfg.baudrate = DEFAULT_BAUDRATE;
-    status = kFile_UpdateSetting(&setting);
-    if (status != KS_OK)
-    {
-        printf("  update %s failed\n", setting.filename);
-        return KS_ERROR;
-    }
-    printf("  >> set COM%d, baudrate %d bps\n", s.port, s.cfg.baudrate);
-    return KS_OK;
-}
-
-uint32_t kCommand_UartGetComportList( void )
-{
-    uint32_t status;
-    // print list
-    if (cplist.num == 0)
-    {
-        printf("  not available comport\n");
-        return KS_ERROR;
-    }
-    printf("\n");
-    for (uint32_t i = 0; i < cplist.num; i++)
-    {
-        printf("  [%d] COM%d\t(%s)\n", i + 1, cplist.port[i], cplist.info[i]);
-    }
-    printf("\n");
-    // select port
-    uint32_t portSelect = getch();
-    uint32_t port = portSelect - '0';
-    if ((portSelect == 27) || (portSelect == '0') || (portSelect == 'q') || (portSelect == 'Q'))
-    {
-        printf("  >> exit\n");
-        return KS_OK;
-    }
-    else if ((portSelect < 48) || (portSelect > 57))
-    {
-        printf("  wrong input ... \"%c\"(%d)\n", portSelect, portSelect);
-        return KS_ERROR;
-    }
-    if (port > cplist.num)
-    {
-        printf("  not in list ... %d\n", port);
-        return KS_ERROR;
-    }
-    s.port = cplist.port[port - 1];
-    status = kFile_UpdateSetting(&setting);
-    if (status != KS_OK)
-    {
-        printf("  update %s failed\n", setting.filename);
-        return KS_ERROR;
-    }
-    printf("  >> select COM%d, baudrate %d bps\n", s.port, s.cfg.baudrate);
-
-    return KS_OK;
+#if 0
+    return updateUartSetting(cplist.port[0], DEFAULT_BAUDRATE);
+#else
+    return updateUartSetting(cplist.port[0], -1);
+#endif
 }
 
 uint32_t kCommand_UartComportConfigure( char *portString, char *baudrateString )
 {
-    uint32_t status;
-    int port, baudrate;
+    int port = -1, baudrate = -1;
 
-    char sport[8] = {0};
-    uint32_t lens = strlen(portString);
-    if (lens > 3)
+    if (strcmpLowercase("list", portString) == KS_OK)
     {
-        for (uint32_t i = 3; i < lens; i++)
+        if (cplist.num == 0)
         {
-            sport[i-3] = portString[i];
+            klogd("  not available comport\n");
+            return KS_ERROR;
+        }
+        // print list
+        klogd("\n");
+        for (uint32_t i = 0; i < cplist.num; i++)
+        {
+            klogd("  [%d] COM%d\t(%s)\n", i + 1, cplist.port[i], cplist.info[i]);
+        }
+        klogd("\n");
+        // select port
+        port = menuSelect(cplist.num);
+        if (port < 0)
+        {
+            return KS_ERROR;
+        }
+        else
+        {
+            port = (port != 0) ? cplist.port[port - 1] : cplist.port[0];
         }
     }
     else
     {
-        sport[0] = portString[0];
-        sport[1] = portString[1];
-        sport[2] = portString[2];
-    }
-    port = strtoul(sport, NULL, 0);
-
-    // setting mode
-    if (baudrateString != NULL)
-    {
-        baudrate = strtoul(baudrateString, NULL, 0);
-        if (baudrate < 1200)
+        char sport[16] = {0};
+        strcpy(sport, portString);
+        sport[3] = 0;
+        if (strcmpLowercase("com", sport) == KS_OK)
         {
-            printf("  wrong baudrate ... %d bps\n", baudrate);
-            return KS_ERROR;
+            strcpy(sport, &portString[3]);
+            port = strtoul(sport, NULL, 0);
         }
-        s.cfg.baudrate = baudrate;
+        else
+        {
+            port = strtoul(portString, NULL, 0);
+        }
+        if (baudrateString != NULL)
+        {
+            baudrate = strtoul(baudrateString, NULL, 0);
+            if (baudrate <= 0)
+            {
+                baudrate = -1;
+            }
+        }
     }
-
-    // update setting file
-    s.port = port;
-    printf("  >> set COM%d, baudrate %d bps\n", s.port, s.cfg.baudrate);
-    status = kFile_UpdateSetting(&setting);
-    if (status != KS_OK)
+    if (port <= 0)
     {
-        printf("  update %s failed\n", setting.filename);
+        printf("  wrong input\n");
         return KS_ERROR;
     }
-
-    return KS_OK;
+    return updateUartSetting(port, baudrate);
 }
 
 uint32_t kCommand_UartBaudrateConfigure( char *baudrateString )
 {
-    uint32_t status;
-    int baudrate;
-    // select mode
-    if ((strcmp("list", baudrateString) == 0) || (strcmp("LIST", baudrateString) == 0))
+    int baudrate = -1;
+    if (strcmpLowercase("list", baudrateString) == KS_OK)
     {
         // print list
         printf("\n");
@@ -294,55 +279,69 @@ uint32_t kCommand_UartBaudrateConfigure( char *baudrateString )
         }
         printf("\n");
         // select port
-        uint32_t baudSelect = getch();
-        baudrate = baudSelect - '0';
-        if ((baudSelect == 27) || (baudSelect == '0') || (baudSelect == 'q') || (baudSelect == 'Q'))
+        baudrate = menuSelect(BAUDRATE_LIST_MAX_LENS);
+        if (baudrate < 0)
         {
-            printf("  >> exit\n");
-            return KS_OK;
-        }
-        else if ((baudSelect < 48) || (baudSelect > 57))
-        {
-            printf("  wrong input ... \"%c\"(%d)\n", baudSelect, baudSelect);
             return KS_ERROR;
         }
-        if (baudrate > BAUDRATE_LIST_MAX_LENS)
+        else
         {
-            printf("  not in list ... %d\n", baudrate);
-            return KS_ERROR;
+            baudrate = (baudrate != 0) ? baudratelist[baudrate - 1] : DEFAULT_BAUDRATE;
         }
-        s.cfg.baudrate = baudratelist[baudrate - 1];
-        status = kFile_UpdateSetting(&setting);
-        if (status != KS_OK)
-        {
-            printf("  update %s failed\n", setting.filename);
-            return KS_ERROR;
-        }
-        printf("  >> select baudrate %d bps\n", s.cfg.baudrate);
-        return KS_OK;
     }
-
-    // setting mode
-    baudrate = strtoul(baudrateString, NULL, 0);
-    if (baudrate < 1200)
+    else
     {
-        printf("  wrong baudrate ... %d bps\n", baudrate);
+        baudrate = strtoul(baudrateString, NULL, 0);
+    }
+    if (baudrate <= 0)
+    {
+        printf("  wrong input\n");
         return KS_ERROR;
     }
-    printf("  >> set baudrate %d bps\n", baudrate);
-    s.cfg.baudrate = baudrate;
-    status = kFile_UpdateSetting(&setting);
-    if (status != KS_OK)
-    {
-        printf("  update %s failed\n", setting.filename);
-        return KS_ERROR;
-    }
-
-    return KS_OK;
+    return updateUartSetting(-1, baudrate);
 }
 
-uint32_t kCommand_UartProcess( char **argv )
+#define UART_RECV_MAX_BUFFER_SIZE   (8 * 1024)
+uint32_t kCommand_UartTerminalProcess( char **argv )
 {
+    char buf[UART_RECV_MAX_BUFFER_SIZE] = {0};
+    uint32_t loop = 1;
+    uint32_t lens;
+
+    kSerial_RecvFlush();
+    while (loop)
+    {
+        lens = kSerial_Recv((uint8_t*)buf, UART_RECV_MAX_BUFFER_SIZE);
+        if (lens != 0)
+        {
+            kputs(buf, lens);
+        }
+        uint8_t key = getKey();
+        if (key)
+        {
+            switch (key)
+            {
+                case 17:    // ctrl + q
+                {
+                    printf("\n  >> exit\n");
+                    loop = 0;
+                    break;
+                }
+                case 19:    // ctrl + S
+                {
+                    // TODO: save log
+                    puts("\n  >> save file\n");
+                    kSerial_Delay(100);
+                    break;
+                }
+                default:
+                {
+                    kSerial_SendByte(key);
+                }
+            }
+        }
+    }
+
     return KS_OK;
 }
 

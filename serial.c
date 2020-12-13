@@ -29,19 +29,23 @@
 /* Typedef ---------------------------------------------------------------------------------*/
 /* Variables -------------------------------------------------------------------------------*/
 
-const char serial_parity_string[][8] = {
+const char serial_parity_string[][8] =
+{
     "NONE", "ODD", "EVEN", "MARK", "SPACE"
 };
 
-const char serial_parity_string_short[] = {
+const char serial_parity_string_short[] =
+{
     'N', 'O', 'E', '_', '_'
 };
 
-const char serial_flowctrl_string[][8] = {
+const char serial_flowctrl_string[][8] =
+{
     "NONE", "XONXOFF", "RTSCTS", "DTRDSR"
 };
 
-const int baudratelist[BAUDRATE_LIST_MAX_LENS] = {
+const int baudratelist[BAUDRATE_LIST_MAX_LENS] =
+{
     9600,
     19200,
     38400,
@@ -78,6 +82,10 @@ int Serial_OpenComport( serial_t *serial )
     DWORD desiredAccess;
     char portName[SERIAL_STRING_BUFFER_SIZE];
 
+    if (serial->isConnected == KS_TRUE)
+    {
+        return KS_ERROR;
+    }
     // check max comport number
     if (serial->port >= SERIAL_MAX_PORT_NUM)
     {
@@ -143,6 +151,7 @@ int Serial_OpenComport( serial_t *serial )
     dcbSettings.fNull           = FALSE;
     dcbSettings.fAbortOnError   = FALSE;
     set_dcb_config(serial, &serial->cfg, &dcbSettings);
+    serial->isConnected = KS_TRUE;
 
     return KS_OK;
 }
@@ -150,6 +159,7 @@ int Serial_OpenComport( serial_t *serial )
 void Serial_CloseComport( serial_t *serial )
 {
     CloseHandle(serial->handle);
+    serial->isConnected = KS_FALSE;
 }
 
 void Serial_SetBaudrate( serial_t *serial, int baudrate )

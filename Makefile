@@ -30,6 +30,7 @@ OUT_DIR := out
 
 SRC =	main.c \
 		serial.c \
+		kString.c \
 		kSerial.c \
 		kFile.c \
 		kCommand.c \

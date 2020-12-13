@@ -17,7 +17,7 @@
 #define __KCOMMAND_H
 
 #ifdef __cplusplus
-    extern "C" {
+extern "C" {
 #endif
 
 /* Includes --------------------------------------------------------------------------------*/
@@ -25,6 +25,9 @@
 #include "kStatus.h"
 
 /* Define ----------------------------------------------------------------------------------*/
+
+#define MAX_COMMAND_SIZE                (256)
+
 /* Macro -----------------------------------------------------------------------------------*/
 /* Typedef ---------------------------------------------------------------------------------*/
 
@@ -32,19 +35,14 @@ typedef enum
 {
     COMMAND_NULL = 0,
     COMMAND_HELP,
-    COMMAND_INFO,
-    COMMAND_PATH,
-    COMMAND_AUTO,
-    COMMAND_LIST,
-    COMMAND_PORT,
-    COMMAND_BAUDRATE,
     COMMAND_VERSION,
+    COMMAND_INFO,
+    COMMAND_AUTO,
+    COMMAND_PORT,
+    COMMAND_BAUD,
 
-    COMMAND_UART,
-    COMMAND_I2C,
-    COMMAND_KSERIAL,
-    COMMAND_BTCONFIG,
-    COMMAND_HC05CONFIG,
+    COMMAND_TERMINAL,
+    COMMAND_TERMINAL_AUTO,
 
     COMMAND_DEBUG,
     COMMAND_ERROR,
@@ -54,31 +52,20 @@ typedef enum
 /* Extern ----------------------------------------------------------------------------------*/
 /* Functions -------------------------------------------------------------------------------*/
 
-uint32_t kCommand_GetCommand( char *commandString );
+uint32_t kCommand_GetCommand( const char *command );
 
-// >> ks -h
 uint32_t kCommand_Help( void );
+uint32_t kCommand_HelpPort( void );
+uint32_t kCommand_HelpBaud( void );
 
-// >> ks -info
 uint32_t kCommand_GetSettingInformation( void );
 
-// >> ks -auto
 uint32_t kCommand_UartConfigureAutomatic( void );
-
-// >> ks -list
-uint32_t kCommand_UartGetComportList( void );
-
-// >> ks -port [PORT or COMx]
-// >> ks -port [PORT or COMx] [BAUDRATE]
+// uint32_t kCommand_UartGetComportList( void );
 uint32_t kCommand_UartComportConfigure( char *portString, char *baudrateString );
-
-// >> ks -baudrate list
-// >> ks -baudrate [BAUDRATE]
 uint32_t kCommand_UartBaudrateConfigure( char *baudrateString );
 
-// >> ks -uart
-// >> ks -uart -save
-uint32_t kCommand_UartProcess( char **argv );
+uint32_t kCommand_UartTerminalProcess( char **argv );
 
 #ifdef __cplusplus
 }
