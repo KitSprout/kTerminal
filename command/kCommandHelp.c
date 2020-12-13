@@ -40,20 +40,20 @@ void kCommand_HelpAuto( void )
 
 void kCommand_HelpPort( void )
 {
-    klogd("  -PORT LIST                             ... show serial comport list\n");
+    klogd("  -PORT LIST                             ... select serial comport with list\n");
     klogd("  -PORT [PORT/COMx]                      ... serial comport setting\n");
     klogd("  -PORT [PORT/COMx] [BAUDRATE]           ... serial comport and baudrate setting\n");
 }
 
 void kCommand_HelpBaud( void )
 {
-    klogd("  -BAUD LIST                             ... show internal baudrate list\n");
+    klogd("  -BAUD LIST                             ... select baudrate with list\n");
     klogd("  -BAUD [BAUDRATE]                       ... serial baudrate setting\n");
 }
 
 void kCommand_HelpTerminal( void )
 {
-    klogd("  -TERMINAL                              ... uart terminal mode\n");
+    klogd("  -TERMINAL                              ... uart terminal\n");
 }
 
 void kCommand_HelpCheck( void )
@@ -79,7 +79,7 @@ void kCommand_HelpRead( void )
 
 void kCommand_HelpWrite( void )
 {
-    klogd("  -WRITE [ADDRESS] [REGISTER] [DATA]     ... i2c single write data\n");
+    klogd("  -WRITE [ADDRESS] [REGISTER] [DATA]     ... i2c single/multiple write data\n");
 }
 
 /*************************************** END OF FILE ****************************************/
