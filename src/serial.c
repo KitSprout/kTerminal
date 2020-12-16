@@ -89,7 +89,7 @@ int Serial_OpenComport( serial_t *serial )
     // check max comport number
     if (serial->port >= SERIAL_MAX_PORT_NUM)
     {
-        klogd("max port number\n");
+        klogd("  max port number\n");
         return KS_ERROR;
     }
 
@@ -107,7 +107,7 @@ int Serial_OpenComport( serial_t *serial )
     serial->handle = CreateFileA(portName, desiredAccess, 0, NULL, OPEN_EXISTING, 0, NULL);
     if (serial->handle == INVALID_HANDLE_VALUE)
     {
-        klogd("open comport failed (%s)\n", serial->name);
+        klogd("  open comport failed (%s)\n", serial->name);
         return KS_ERROR;
     }
 
@@ -115,7 +115,7 @@ int Serial_OpenComport( serial_t *serial )
     // event setting
     if (!SetCommMask(serial->handle, EV_RXCHAR | EV_ERR))
     {
-        klogd("set comport event failed\n");
+        klogd("  set comport event failed\n");
         CloseHandle(serial->handle);
         return KS_ERROR;
     }
@@ -125,7 +125,7 @@ int Serial_OpenComport( serial_t *serial )
     // rx, tx buffer size setting
     if (!SetupComm(serial->handle, serial->txBufferSize, serial->txBufferSize))
     {
-        klogd("set comport buffer size failed\n");
+        klogd("  set comport buffer size failed\n");
         CloseHandle(serial->handle);
         return KS_ERROR;
     }
@@ -139,7 +139,7 @@ int Serial_OpenComport( serial_t *serial )
     serial->timeouts.WriteTotalTimeoutConstant    = 0;
     if (!SetCommTimeouts(serial->handle, &serial->timeouts))
     {
-        klogd("set comport timeout failed\n");
+        klogd("  set comport timeout failed\n");
         CloseHandle(serial->handle);
         return KS_ERROR;
     }
@@ -187,7 +187,7 @@ int Serial_GetComportList( comport_list_t *list )
     );
     if (retVal != ERROR_SUCCESS)
     {
-        klogd("open registry key failed\n");
+        klogd("  open registry key failed\n");
         return KS_ERROR;
     }
 
@@ -208,7 +208,7 @@ int Serial_GetComportList( comport_list_t *list )
     );
     if (retVal != ERROR_SUCCESS)
     {
-        klogd("get registry key information failed\n");
+        klogd("  get registry key information failed\n");
         RegCloseKey(hKey);
         return KS_ERROR;
     }
@@ -318,7 +318,7 @@ static int get_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
 {
     if (!GetCommState(serial->handle, dcb))
     {
-        klogd("get comport dcb setting failed\n");
+        klogd("  get comport dcb setting failed\n");
         return KS_ERROR;
     }
 
@@ -421,7 +421,7 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
         case SERIAL_PARITY_SPACE: dcb->Parity = SPACEPARITY;  break;
         default:
         {
-            klogd("invalid parity setting\n");
+            klogd("  invalid parity setting\n");
             return KS_ERROR;
         }
     }
@@ -432,7 +432,7 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
         case 2:   dcb->StopBits = TWOSTOPBITS;  break;
         default:
         {
-            klogd("invalid stopbits setting\n");
+            klogd("  invalid stopbits setting\n");
             return KS_ERROR;
         }
     }
@@ -444,7 +444,7 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
         case SERIAL_RTS_FLOW_CONTROL: dcb->fRtsControl = RTS_CONTROL_HANDSHAKE; break;
         default:
         {
-            klogd("invalid rts setting\n");
+            klogd("  invalid rts setting\n");
             return KS_ERROR;
         }
     }
@@ -455,7 +455,7 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
         case SERIAL_CTS_FLOW_CONTROL: dcb->fOutxCtsFlow = TRUE;   break;
         default:
         {
-            klogd("invalid cts setting\n");
+            klogd("  invalid cts setting\n");
             return KS_ERROR;
         }
     }
@@ -467,7 +467,7 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
         case SERIAL_DTR_FLOW_CONTROL: dcb->fDtrControl = DTR_CONTROL_HANDSHAKE; break;
         default:
         {
-            klogd("invalid dtr setting\n");
+            klogd("  invalid dtr setting\n");
             return KS_ERROR;
         }
     }
@@ -478,7 +478,7 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
         case SERIAL_DSR_FLOW_CONTROL: dcb->fOutxDsrFlow = TRUE;   break;
         default:
         {
-            klogd("invalid dsr setting\n");
+            klogd("  invalid dsr setting\n");
             return KS_ERROR;
         }
     }
@@ -491,14 +491,14 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
         case SERIAL_XONXOFF_INOUT:      dcb->fInX = TRUE;   dcb->fOutX = TRUE;    break;
         default:
         {
-            klogd("invalid xon/xoff setting\n");
+            klogd("  invalid xon/xoff setting\n");
             return KS_ERROR;
         }
     }
 
     if (!SetCommState(serial->handle, dcb))
     {
-        klogd("set comport dcb setting failed\n");
+        klogd("  set comport dcb setting failed\n");
         CloseHandle(serial->handle);
         return KS_ERROR;
     }
