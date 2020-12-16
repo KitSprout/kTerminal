@@ -40,7 +40,7 @@ extern "C" {
 #define DEFAULT_SERIAL_CONFIG { \
     .port           = DEFAULT_COMPORT, \
     .txBufferSize   = 8 * 1024, \
-    .txBufferSize   = 16 * 1024, \
+    .rxBufferSize   = 16 * 1024, \
     .cfg = { \
         .baudrate   = DEFAULT_BAUDRATE, \
         .databits   = DEFAULT_DATABITS, \
