@@ -27,7 +27,7 @@
 
 /* Define ----------------------------------------------------------------------------------*/
 
-#define FIRMWARE_VERSION    "v1.0"
+#define FIRMWARE_VERSION    "v1.1-alpha"
 
 /* Macro -----------------------------------------------------------------------------------*/
 /* Typedef ---------------------------------------------------------------------------------*/
@@ -170,12 +170,7 @@ int main( int argc, char **argv )
         case COMMAND_TERMINAL_AUTO:
         {
             kCommand_UartConfigureAutomatic();
-            klogd("  >> uart terminal mode\n");
-            if (openSerialPort() != KS_OK)
-            {
-                return KS_ERROR;
-            }
-            kCommand_UartTerminalProcess(NULL);
+            command = COMMAND_TERMINAL;
             break;
         }
         case COMMAND_ERROR:
@@ -200,9 +195,15 @@ int main( int argc, char **argv )
             kCommand_UartTerminalProcess(NULL);
             break;
         }
-        case COMMAND_CHECK:
+        case COMMAND_KSERIAL:
         {
-            kCommand_CheckDevice();
+            klogd("  >> uart kserial mode\n");
+            kCommand_UartKSerialRecv(NULL);
+            break;
+        }
+        case COMMAND_TARGET:
+        {
+            kCommand_Target(argv[2], argv[3]);
             break;
         }
         case COMMAND_SCAN:
