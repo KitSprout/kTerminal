@@ -30,7 +30,12 @@ extern "C" {
 /* Extern ----------------------------------------------------------------------------------*/
 /* Functions -------------------------------------------------------------------------------*/
 
-uint32_t    kCommand_CheckDevice( void );
+uint32_t    kCommand_Target( const char *commandString, const char *valueString );
+
+uint32_t    kCommandTarget_CheckDevice( void );
+uint32_t    kCommandTarget_SetBaudrate( uint32_t baudrate );
+uint32_t    kCommandTarget_SetRate( uint32_t rate );
+uint32_t    kCommandTarget_SetMode( uint32_t mode );
 
 #ifdef __cplusplus
 }

@@ -45,8 +45,10 @@ typedef enum
 
     COMMAND_TERMINAL,
     COMMAND_TERMINAL_AUTO,
+    COMMAND_KSERIAL,
 
-    COMMAND_CHECK,
+    COMMAND_TARGET,
+
     COMMAND_SCAN,
     COMMAND_REG,
     COMMAND_READ,
@@ -64,19 +66,14 @@ uint32_t    kCommand_GetCommand( const char *command );
 
 uint32_t    kCommand_Help( void );
 
-uint32_t    kCommand_GetVersion( char *version );
+uint32_t    kCommand_GetVersion( const char *version );
 uint32_t    kCommand_GetSettingInformation( void );
 
 uint32_t    kCommand_UartConfigureAutomatic( void );
-uint32_t    kCommand_UartComportConfigure( char *portString, char *baudrateString );
-uint32_t    kCommand_UartBaudrateConfigure( char *baudrateString );
-uint32_t    kCommand_UartTerminalProcess( char **argv );
-
-uint32_t    kCommand_CheckDevice( void );
-uint32_t    kCommand_TwiScanDevice( void );
-uint32_t    kCommand_TwiScanRegister( char *addressString );
-uint32_t    kCommand_TwiRead( char *addressString, char *registerString, char *lenghtString );
-uint32_t    kCommand_TwiWrite( char *addressString, char *registerString, char **dataString, int length );
+uint32_t    kCommand_UartComportConfigure( const char *portString, const char *baudrateString );
+uint32_t    kCommand_UartBaudrateConfigure( const char *baudrateString );
+uint32_t    kCommand_UartTerminalProcess( const char **argv );
+uint32_t    kCommand_UartKSerialRecv( const char **argv );
 
 #ifdef __cplusplus
 }

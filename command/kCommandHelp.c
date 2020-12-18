@@ -56,9 +56,17 @@ void kCommand_HelpTerminal( void )
     klogd("  -TERMINAL                              ... uart terminal\n");
 }
 
-void kCommand_HelpCheck( void )
+void kCommand_HelpKSerial( void )
 {
-    klogd("  -CHECK                                 ... check device\n");
+    klogd("  -KSERIAL                               ... uart terminal\n");
+}
+
+void kCommand_HelpTarget( void )
+{
+    klogd("  -TATGET                                ... check device\n");
+    klogd("  -TATGET BAUD [BAUD]                    ... set target baudrate\n");
+    klogd("  -TATGET RATE [RATE]                    ... set target update rate\n");
+    klogd("  -TATGET MODE [MODE]                    ... set target mode\n");
 }
 
 void kCommand_HelpScan( void )

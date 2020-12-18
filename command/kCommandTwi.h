@@ -31,9 +31,9 @@ extern "C" {
 /* Functions -------------------------------------------------------------------------------*/
 
 uint32_t    kCommand_TwiScanDevice( void );
-uint32_t    kCommand_TwiScanRegister( char *addressString );
-uint32_t    kCommand_TwiRead( char *addressString, char *registerString, char *lenghtString );
-uint32_t    kCommand_TwiWrite( char *addressString, char *registerString, char **dataString, int length );
+uint32_t    kCommand_TwiScanRegister( const char *addressString );
+uint32_t    kCommand_TwiRead( const char *addressString, const char *registerString, const char *lenghtString );
+uint32_t    kCommand_TwiWrite( const char *addressString, const char *registerString, char **dataString, int length );
 
 #ifdef __cplusplus
 }
