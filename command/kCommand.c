@@ -415,7 +415,7 @@ uint32_t kCommand_UartKSerialRecv( const char **argv )
             packetFreq = 1000.0 / (tn - ts);
 
             uint32_t lens;
-            lens = sprintf(logbuf, "[%6d][%3d][%s][%02X:%02X][%4d Hz] ", total, count, KS_TYPE_STRING[pk.type], pk.param[0], pk.param[1], (int32_t)packetFreq);
+            lens = sprintf(logbuf, "[%6d][%3d][%s][%02X:%02X][%4dHz] ", total, count, KS_TYPE_STRING[pk.type], pk.param[0], pk.param[1], (int32_t)packetFreq);
             for (uint32_t i = 0; i < pk.lens; i++)
             {
                 switch (pk.type)

@@ -67,6 +67,7 @@ void kCommand_HelpTarget( void )
     klogd("  -TATGET BAUD [BAUD]                    ... set target baudrate\n");
     klogd("  -TATGET RATE [RATE]                    ... set target update rate\n");
     klogd("  -TATGET MODE [MODE]                    ... set target mode\n");
+    klogd("  -TATGET GET [ITEM]                     ... get baudrate, update rate, id, mode ...\n");
 }
 
 void kCommand_HelpScan( void )
