@@ -141,7 +141,7 @@ uint32_t kCommandTarget_GetValue( const char *inputString )
         uint32_t item = getTargetItem(inputString);
         if (item != KSCMD_R0_NULL)
         {
-            klogd("  >> get target %s (%02X)\n", inputString, item);
+            klogd("  >> get target %s", inputString, item);
         }
         else
         {
@@ -151,10 +151,10 @@ uint32_t kCommandTarget_GetValue( const char *inputString )
         uint32_t *ptr32 = (uint32_t*)ack.data;
         switch (item)
         {
-            case KSCMD_R0_DEVICE_ID:        klogd("  >> %08X\n", ptr32[0]);     break;
-            case KSCMD_R0_DEVICE_BAUDRATE:  klogd("  >> %d bps\n", ptr32[0]);   break;
-            case KSCMD_R0_DEVICE_RATE:      klogd("  >> %d Hz\n", ptr32[0]);    break;
-            case KSCMD_R0_DEVICE_MDOE:      klogd("  >> mode %d\n", ptr32[0]);  break;
+            case KSCMD_R0_DEVICE_ID:        klogd(" ... 0x%08X\n", ptr32[0]);   break;
+            case KSCMD_R0_DEVICE_BAUDRATE:  klogd(" ... %d bps\n", ptr32[0]);   break;
+            case KSCMD_R0_DEVICE_RATE:      klogd(" ... %d Hz\n", ptr32[0]);    break;
+            case KSCMD_R0_DEVICE_MDOE:      klogd(" ... mode %d\n", ptr32[0]);  break;
         }
         return KS_OK;
     }
