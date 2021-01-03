@@ -203,7 +203,14 @@ int main( int argc, char **argv )
         }
         case COMMAND_TARGET:
         {
-            kCommand_Target(argv[2], argv[3]);
+            if (argv[2] == NULL)
+            {
+                kCommand_Target(argv[2], NULL);
+            }
+            else
+            {
+                kCommand_Target(argv[2], argv[3]);
+            }
             break;
         }
         case COMMAND_SCAN:

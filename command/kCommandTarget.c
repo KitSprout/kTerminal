@@ -38,7 +38,6 @@ uint32_t kCommand_Target( const char *commandString, const char *inputString )
     char cmd[MAX_COMMAND_SIZE] = {0};
     int32_t value = -1;
     uint32_t status = toLowercase(cmd, commandString);
-
     if (inputString != NULL)
     {
         value = strtoul(inputString, NULL, 0);
@@ -104,7 +103,8 @@ uint32_t kCommandTarget_SetBaudrate( uint32_t baudrate )
         return KS_ERROR;
     }
     klogd("  >> set target baudrate %d bps\n", baudrate);
-    kSerial_SendCommand(KS_R0, KSCMD_R0_DEVICE_BAUDRATE, baudrate, NULL);
+    uint8_t param[2] = {KSCMD_R0_DEVICE_BAUDRATE, 4};
+    kSerial_SendPacket(param, &baudrate, param[1], KS_R0);
     return KS_OK;
 }
 
@@ -116,7 +116,8 @@ uint32_t kCommandTarget_SetUpdateRate( uint32_t updaterate )
         return KS_ERROR;
     }
     klogd("  >> set target update rate %d Hz\n", updaterate);
-    kSerial_SendCommand(KS_R0, KSCMD_R0_DEVICE_RATE, updaterate, NULL);
+    uint8_t param[2] = {KSCMD_R0_DEVICE_RATE, 4};
+    kSerial_SendPacket(param, &updaterate, param[1], KS_R0);
     return KS_OK;
 }
 
