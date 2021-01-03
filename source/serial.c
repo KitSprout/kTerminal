@@ -70,6 +70,55 @@ static int set_dcb_config( const serial_t *serial, serial_config_t *config, DCB 
 
 /* Functions -------------------------------------------------------------------------------*/
 
+uint32_t openSerialPort( void )
+{
+    if (s.isConnected == KS_OPEN)
+    {
+        return KS_BUSY;
+    }
+    // check comport
+    if (cplist.num == 0)
+    {
+        klogd("  not available port\n");
+        return KS_ERROR;
+    }
+    // open serial port
+    if (Serial_OpenComport(&s) != KS_OK)
+    {
+        klogd("\n  open serial error (COM%d)\n", s.port);
+        return KS_ERROR;
+    }
+
+    return KS_OK;
+}
+
+void closeSerialPort( void )
+{
+    Serial_CloseComport(&s);
+}
+
+uint32_t scanSerialPort( void )
+{
+    if (Serial_GetComportList(&cplist) != KS_OK)
+    {
+        klogd("\n  scan comport error\n");
+        return KS_ERROR;
+    }
+    return KS_OK;
+}
+
+void releaseSerialPortList( void )
+{
+    Serial_FreeComportList(&cplist);
+}
+
+void resetSerialBaudrate( int baudrate )
+{
+    Serial_CloseComport(&s);
+    s.cfg.baudrate = baudrate;
+    openSerialPort();
+}
+
 void Serial_Delay( uint32_t ms )
 {
     Sleep(ms);
@@ -82,7 +131,7 @@ int Serial_OpenComport( serial_t *serial )
     DWORD desiredAccess;
     char portName[SERIAL_STRING_BUFFER_SIZE];
 
-    if (serial->isConnected == KS_TRUE)
+    if (serial->isConnected == KS_OPEN)
     {
         return KS_ERROR;
     }
@@ -151,15 +200,20 @@ int Serial_OpenComport( serial_t *serial )
     dcbSettings.fNull           = FALSE;
     dcbSettings.fAbortOnError   = FALSE;
     set_dcb_config(serial, &serial->cfg, &dcbSettings);
-    serial->isConnected = KS_TRUE;
+    serial->isConnected = KS_OPEN;
 
     return KS_OK;
 }
 
-void Serial_CloseComport( serial_t *serial )
+int Serial_CloseComport( serial_t *serial )
 {
-    CloseHandle(serial->handle);
-    serial->isConnected = KS_FALSE;
+    if (serial->isConnected != KS_CLOSE)
+    {
+        CloseHandle(serial->handle);
+        serial->isConnected = KS_CLOSE;
+        return KS_OK;
+    }
+    return KS_ERROR;
 }
 
 void Serial_SetBaudrate( serial_t *serial, int baudrate )

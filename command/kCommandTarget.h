@@ -33,6 +33,7 @@ extern "C" {
 uint32_t    kCommand_Target( const char *commandString, const char *valueString );
 
 uint32_t    kCommandTarget_CheckDevice( void );
+uint32_t    kCommandTarget_AutoBaudrate( void );
 uint32_t    kCommandTarget_SetBaudrate( uint32_t baudrate );
 uint32_t    kCommandTarget_SetUpdateRate( uint32_t rate );
 uint32_t    kCommandTarget_SetMode( uint32_t mode );

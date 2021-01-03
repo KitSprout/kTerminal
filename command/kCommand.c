@@ -214,7 +214,7 @@ static int menuSelect( uint32_t maxlens )
     return value;
 }
 
-static uint32_t updateUartSetting( int port, int baudrate )
+uint32_t updateUartSetting( int port, int baudrate )
 {
     if (port != -1)
     {

@@ -56,6 +56,11 @@ uint32_t kCommand_Target( const char *commandString, const char *inputString )
         kCommand_HelpTarget();
         return KS_OK;
     }
+    // >> ks -taget auto
+    if ((strcmp("a", cmd) == 0) || (strcmp("auto", cmd) == 0))
+    {
+        return kCommandTarget_AutoBaudrate();
+    }
     // >> ks -taget baud [baud]
     if (strcmp("baud", cmd) == 0)
     {
@@ -85,7 +90,6 @@ uint32_t kCommand_Target( const char *commandString, const char *inputString )
 uint32_t kCommandTarget_CheckDevice( void )
 {
     uint32_t id = 0;
-
     if (kSerial_DeviceCheck(&id) != KS_OK)
     {
         klogd("  >> Device Not Found\n");
@@ -95,6 +99,27 @@ uint32_t kCommandTarget_CheckDevice( void )
     return KS_OK;
 }
 
+uint32_t kCommandTarget_AutoBaudrate( void )
+{
+    const int searchOrder[BAUDRATE_LIST_MAX_LENS] = 
+    {
+        3, 4, 5, 6, 7, 8, 0, 1, 2
+    };
+    for (uint32_t i = 0; i < BAUDRATE_LIST_MAX_LENS; i++)
+    {
+        uint32_t id = 0;
+        resetSerialBaudrate(baudratelist[searchOrder[i]]);
+        if (kSerial_DeviceCheck(&id) == KS_OK)
+        {
+            klogd("  search baudrate = %d bps\n", s.cfg.baudrate);
+            updateUartSetting(-1, -1);
+            return KS_OK;
+        }
+    }
+
+    return KS_ERROR;
+}
+
 uint32_t kCommandTarget_SetBaudrate( uint32_t baudrate )
 {
     if (baudrate < 0)
@@ -102,9 +127,19 @@ uint32_t kCommandTarget_SetBaudrate( uint32_t baudrate )
         klogd("  >> set target baudrate error (%d)\n", baudrate);
         return KS_ERROR;
     }
-    klogd("  >> set target baudrate %d bps\n", baudrate);
+    klogd("  >> set target baudrate %d bps ... ", baudrate);
     uint8_t param[2] = {KSCMD_R0_DEVICE_BAUDRATE, 4};
     kSerial_SendPacket(param, &baudrate, param[1], KS_R0);
+
+    uint32_t id = 0;
+    resetSerialBaudrate(baudrate);
+    if (kSerial_DeviceCheck(&id) != KS_OK)
+    {
+        klogd("ERROR\n");
+        return KS_ERROR;
+    }
+    klogd("OK\n");
+    updateUartSetting(-1, -1);
     return KS_OK;
 }
 

@@ -49,44 +49,6 @@ kfile_setting_t setting =
 /* Prototypes ------------------------------------------------------------------------------*/
 /* Functions -------------------------------------------------------------------------------*/
 
-uint32_t openSerialPort( void )
-{
-    if (s.isConnected == KS_TRUE)
-    {
-        return KS_BUSY;
-    }
-    // check comport
-    if (cplist.num == 0)
-    {
-        klogd("  not available port\n");
-        return KS_ERROR;
-    }
-    // open serial port
-    if (Serial_OpenComport(&s) != KS_OK)
-    {
-        klogd("\n  open serial error (COM%d)\n", s.port);
-        return KS_ERROR;
-    }
-
-    return KS_OK;
-}
-
-void closeSerialPort( void )
-{
-    Serial_CloseComport(&s);
-    Serial_FreeComportList(&cplist);
-}
-
-uint32_t scanSerialPort( void )
-{
-    if (Serial_GetComportList(&cplist) != KS_OK)
-    {
-        klogd("\n  scan comport error\n");
-        return KS_ERROR;
-    }
-    return KS_OK;
-}
-
 uint32_t loadSettingFile( void )
 {
     if (kFile_GetSetting(&setting) != KS_OK)
@@ -185,6 +147,14 @@ int main( int argc, char **argv )
     {
         return KS_ERROR;
     }
+    // close serial port
+    Serial_CloseComport(&s);
+    // open serial port
+    if (Serial_OpenComport(&s) != KS_OK)
+    {
+        klogd("\n  open serial error (COM%d)\n", s.port);
+        return KS_ERROR;
+    }
 
     // command (with serial)
     switch (command)
@@ -260,6 +230,7 @@ int main( int argc, char **argv )
 
     // close serial port
     closeSerialPort();
+    releaseSerialPortList();
 
     return KS_OK;
 }

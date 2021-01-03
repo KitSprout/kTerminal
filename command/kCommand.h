@@ -69,6 +69,8 @@ uint32_t    kCommand_Help( void );
 uint32_t    kCommand_GetVersion( const char *version );
 uint32_t    kCommand_GetSettingInformation( void );
 
+uint32_t    updateUartSetting( int port, int baudrate );
+
 uint32_t    kCommand_UartConfigureAutomatic( void );
 uint32_t    kCommand_UartComportConfigure( const char *portString, const char *baudrateString );
 uint32_t    kCommand_UartBaudrateConfigure( const char *baudrateString );

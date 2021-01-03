@@ -169,10 +169,16 @@ extern serial_t s;
 
 /* Functions -------------------------------------------------------------------------------*/
 
+uint32_t    openSerialPort( void );
+void        closeSerialPort( void );
+uint32_t    scanSerialPort( void );
+void        releaseSerialPortList( void );
+void        resetSerialBaudrate( int baudrate );
+
 void        Serial_Delay( uint32_t ms );
 
 int         Serial_OpenComport( serial_t *serial );
-void        Serial_CloseComport( serial_t *serial );
+int         Serial_CloseComport( serial_t *serial );
 void        Serial_SetBaudrate( serial_t *serial, int baudrate );
 int         Serial_GetComportList( comport_list_t *list );
 void        Serial_FreeComportList( comport_list_t *list );

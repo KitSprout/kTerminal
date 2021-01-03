@@ -64,6 +64,7 @@ void kCommand_HelpKSerial( void )
 void kCommand_HelpTarget( void )
 {
     klogd("  -TATGET                                ... check device\n");
+    klogd("  -TATGET AUTO                           ... set baudrate automatic\n");
     klogd("  -TATGET BAUD [BAUD]                    ... set target baudrate\n");
     klogd("  -TATGET RATE [RATE]                    ... set target update rate\n");
     klogd("  -TATGET MODE [MODE]                    ... set target mode\n");
