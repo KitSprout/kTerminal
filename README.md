@@ -14,7 +14,12 @@
 | -BAUD [BAUDRATE]                    | serial baudrate setting             |
 | -TERMINAL                           | uart terminal                       |
 | **Target Command**                  |                                     |
-| -CHECK                              | check device                        |
+| -TATGET CHECK                       | check device                        |
+| -TATGET AUTO                        | set baudrate automatic              |
+| -TATGET BAUD [BAUD]                 | set target baudrate                 |
+| -TATGET RATE [RATE]                 | set target update rate              |
+| -TATGET MODE [MODE]                 | set target mode                     |
+| -TATGET GET [ITEM]                  | get baud, rate, id, mode ...        |
 | **I2C Command**                     |                                     |
 | -SCAN                               | i2c scan device                     |
 | -REG [ADDRESS]                      | i2c scan register data              |
