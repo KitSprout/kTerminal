@@ -89,10 +89,18 @@ uint32_t kCommand_GetCommand( const char *command )
     {
         return COMMAND_TERMINAL_AUTO;
     }
-    // >> ks -check
-    if (/*(strcmp("-c", cmd) == 0) ||*/ strcmp("-check", cmd) == 0)
+    // >> ks -kserial
+    if ((strcmp("-rs", cmd) == 0) || (strcmp("-kserial", cmd) == 0))
     {
-        return COMMAND_CHECK;
+        return COMMAND_KSERIAL;
+    }
+    // >> ks -target check
+    // >> ks -target baud [baud]
+    // >> ks -target rate [rate]
+    // >> ks -target mode [mode]
+    if ((strcmp("-tg", cmd) == 0) || strcmp("-target", cmd) == 0)
+    {
+        return COMMAND_TARGET;
     }
     // >> ks -scan
     if (/*(strcmp("-s", cmd) == 0) ||*/ strcmp("-scan", cmd) == 0)
@@ -133,9 +141,10 @@ uint32_t kCommand_Help( void )
     kCommand_HelpPort();
     kCommand_HelpBaud();
     kCommand_HelpTerminal();
+    kCommand_HelpKSerial();
     klogd("\n");
     klogd("  **** Target Command\n");
-    kCommand_HelpCheck();
+    kCommand_HelpTarget();
     klogd("\n");
     klogd("  **** I2C Command\n");
     kCommand_HelpScan();
@@ -150,7 +159,7 @@ uint32_t kCommand_Help( void )
     return KS_OK;
 }
 
-uint32_t kCommand_GetVersion( char *version )
+uint32_t kCommand_GetVersion( const char *version )
 {
     klogd("  >> version: %s\n", version);
     return KS_OK;
@@ -205,7 +214,7 @@ static int menuSelect( uint32_t maxlens )
     return value;
 }
 
-static uint32_t updateUartSetting( const int port, const int baudrate )
+uint32_t updateUartSetting( int port, int baudrate )
 {
     if (port != -1)
     {
@@ -238,7 +247,7 @@ uint32_t kCommand_UartConfigureAutomatic( void )
 #endif
 }
 
-uint32_t kCommand_UartComportConfigure( char *portString, char *baudrateString )
+uint32_t kCommand_UartComportConfigure( const char *portString, const char *baudrateString )
 {
     int port = -1, baudrate = -1;
 
@@ -298,7 +307,7 @@ uint32_t kCommand_UartComportConfigure( char *portString, char *baudrateString )
     return updateUartSetting(port, baudrate);
 }
 
-uint32_t kCommand_UartBaudrateConfigure( char *baudrateString )
+uint32_t kCommand_UartBaudrateConfigure( const char *baudrateString )
 {
     int baudrate = -1;
     if (strcmpLowercase("list", baudrateString) == KS_OK)
@@ -334,7 +343,7 @@ uint32_t kCommand_UartBaudrateConfigure( char *baudrateString )
 }
 
 #define UART_RECV_MAX_BUFFER_SIZE   (8 * 1024)
-uint32_t kCommand_UartTerminalProcess( char **argv )
+uint32_t kCommand_UartTerminalProcess( const char **argv )
 {
     char buf[UART_RECV_MAX_BUFFER_SIZE] = {0};
     uint32_t loop = KS_TRUE;
@@ -374,6 +383,79 @@ uint32_t kCommand_UartTerminalProcess( char **argv )
         }
     }
 
+    return KS_OK;
+}
+
+uint32_t kCommand_UartKSerialRecv( const char **argv )
+{
+    char logbuf[1024] = {0};
+
+    uint32_t loop = KS_TRUE;
+
+    int16_t bytes[KSERIAL_MAX_PACKET_LENS >> 1];
+    uint32_t index = 0, count = 0, total = 0;
+    kserial_packet_t pk = {
+        .param = {0},
+        .type = 0,
+        .lens = 0,
+        .nbyte = 0,
+        .data = bytes
+    };
+
+    uint32_t ts = 0, tn = 0;
+    float packetFreq;
+
+    while (loop)
+    {
+        kSerial_ContinuousRead(&pk, &index, &count, &total);
+        if (count != 0)
+        {
+            ts = tn;
+            tn = ((int16_t*)pk.data)[0]*1000 + ((int16_t*)pk.data)[1];
+            packetFreq = 1000.0 / (tn - ts);
+
+            uint32_t lens;
+            lens = sprintf(logbuf, "[%6d][%3d][%s][%02X:%02X][%4dHz] ", total, count, KS_TYPE_STRING[pk.type], pk.param[0], pk.param[1], (int32_t)packetFreq);
+            for (uint32_t i = 0; i < pk.lens; i++)
+            {
+                switch (pk.type)
+                {
+                    case KS_I8:     lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((int8_t*)pk.data)[i]);    break;
+                    case KS_U8:     lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((uint8_t*)pk.data)[i]);   break;
+                    case KS_I16:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((int16_t*)pk.data)[i]);   break;
+                    case KS_U16:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((uint16_t*)pk.data)[i]);  break;
+                    case KS_I32:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((int32_t*)pk.data)[i]);   break;
+                    case KS_U32:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((uint32_t*)pk.data)[i]);  break;
+                    case KS_I64:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((int64_t*)pk.data)[i]);   break;
+                    case KS_U64:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((uint64_t*)pk.data)[i]);  break;
+                    case KS_F32:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((float*)pk.data)[i]);     break;
+                    case KS_F64:    lens += sprintf(&logbuf[lens], KS_TYPE_FORMATE[pk.type], ((double*)pk.data)[i]);    break;
+                }
+                if (i != (pk.lens - 1))
+                {
+                    logbuf[lens++] = ',';
+                }
+            }
+            logbuf[lens++] = 0;
+            puts(logbuf);
+        }
+        switch (getKey())
+        {
+            case 17:    // ctrl + q
+            {
+                klogd("\n  >> exit\n");
+                loop = KS_FALSE;
+                break;
+            }
+            case 19:    // ctrl + S
+            {
+                // TODO: save log
+                klogd("\n  >> save file\n");
+                kSerial_Delay(100);
+                break;
+            }
+        }
+    }
     return KS_OK;
 }
 

@@ -27,7 +27,7 @@
 
 /* Define ----------------------------------------------------------------------------------*/
 
-#define FIRMWARE_VERSION    "v1.0"
+#define FIRMWARE_VERSION    "v1.1-alpha"
 
 /* Macro -----------------------------------------------------------------------------------*/
 /* Typedef ---------------------------------------------------------------------------------*/
@@ -48,44 +48,6 @@ kfile_setting_t setting =
 
 /* Prototypes ------------------------------------------------------------------------------*/
 /* Functions -------------------------------------------------------------------------------*/
-
-uint32_t openSerialPort( void )
-{
-    if (s.isConnected == KS_TRUE)
-    {
-        return KS_BUSY;
-    }
-    // check comport
-    if (cplist.num == 0)
-    {
-        klogd("  not available port\n");
-        return KS_ERROR;
-    }
-    // open serial port
-    if (Serial_OpenComport(&s) != KS_OK)
-    {
-        klogd("\n  open serial error (COM%d)\n", s.port);
-        return KS_ERROR;
-    }
-
-    return KS_OK;
-}
-
-void closeSerialPort( void )
-{
-    Serial_CloseComport(&s);
-    Serial_FreeComportList(&cplist);
-}
-
-uint32_t scanSerialPort( void )
-{
-    if (Serial_GetComportList(&cplist) != KS_OK)
-    {
-        klogd("\n  scan comport error\n");
-        return KS_ERROR;
-    }
-    return KS_OK;
-}
 
 uint32_t loadSettingFile( void )
 {
@@ -170,12 +132,7 @@ int main( int argc, char **argv )
         case COMMAND_TERMINAL_AUTO:
         {
             kCommand_UartConfigureAutomatic();
-            klogd("  >> uart terminal mode\n");
-            if (openSerialPort() != KS_OK)
-            {
-                return KS_ERROR;
-            }
-            kCommand_UartTerminalProcess(NULL);
+            command = COMMAND_TERMINAL;
             break;
         }
         case COMMAND_ERROR:
@@ -190,6 +147,14 @@ int main( int argc, char **argv )
     {
         return KS_ERROR;
     }
+    // close serial port
+    Serial_CloseComport(&s);
+    // open serial port
+    if (Serial_OpenComport(&s) != KS_OK)
+    {
+        klogd("\n  open serial error (COM%d)\n", s.port);
+        return KS_ERROR;
+    }
 
     // command (with serial)
     switch (command)
@@ -200,9 +165,22 @@ int main( int argc, char **argv )
             kCommand_UartTerminalProcess(NULL);
             break;
         }
-        case COMMAND_CHECK:
+        case COMMAND_KSERIAL:
         {
-            kCommand_CheckDevice();
+            klogd("  >> uart kserial mode\n");
+            kCommand_UartKSerialRecv(NULL);
+            break;
+        }
+        case COMMAND_TARGET:
+        {
+            if (argv[2] == NULL)
+            {
+                kCommand_Target(argv[2], NULL);
+            }
+            else
+            {
+                kCommand_Target(argv[2], argv[3]);
+            }
             break;
         }
         case COMMAND_SCAN:
@@ -252,6 +230,7 @@ int main( int argc, char **argv )
 
     // close serial port
     closeSerialPort();
+    releaseSerialPortList();
 
     return KS_OK;
 }

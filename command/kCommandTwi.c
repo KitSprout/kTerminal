@@ -50,7 +50,7 @@ uint32_t kCommand_TwiScanDevice( void )
     return KS_OK;
 }
 
-uint32_t kCommand_TwiScanRegister( char *addressString )
+uint32_t kCommand_TwiScanRegister( const char *addressString )
 {
     uint32_t address = strtoul(addressString, NULL, 0);
 
@@ -79,7 +79,7 @@ uint32_t kCommand_TwiScanRegister( char *addressString )
     return KS_OK;
 }
 
-uint32_t kCommand_TwiRead( char *addressString, char *registerString, char *lenghtString )
+uint32_t kCommand_TwiRead( const char *addressString, const char *registerString, const char *lenghtString )
 {
     uint32_t slaveAddress = strtoul(addressString, NULL, 0);
     uint32_t deviceRegister = strtoul(registerString, NULL, 0);
@@ -102,7 +102,7 @@ uint32_t kCommand_TwiRead( char *addressString, char *registerString, char *leng
     return KS_OK;
 }
 
-uint32_t kCommand_TwiWrite( char *addressString, char *registerString, char **dataString, int length )
+uint32_t kCommand_TwiWrite( const char *addressString, const char *registerString, const char **dataString, int length )
 {
     uint32_t slaveAddress = strtoul(addressString, NULL, 0);
     uint32_t deviceRegister = strtoul(registerString, NULL, 0);
