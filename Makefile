@@ -27,7 +27,7 @@ OBJ_DIR := obj
 OUT_DIR := out
 SRC_DIR := source
 CMD_DIR := command
-KSL_DIR := kserial$(SP)clang
+KSL_DIR := kserial
 
 MAIN =	main.c
 SRC =	serial.c \
