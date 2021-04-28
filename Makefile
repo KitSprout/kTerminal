@@ -23,10 +23,10 @@ CFLAGS += -std=c99
 CFLAGS += -O3
 
 TARGET  := ks
-OBJ_DIR := obj
+OBJ_DIR := build
 OUT_DIR := out
 SRC_DIR := source
-CMD_DIR := command
+CMD_DIR := cmd
 KSL_DIR := kserial
 
 MAIN =	main.c

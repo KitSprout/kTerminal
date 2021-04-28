@@ -1,4 +1,5 @@
 obj/
+build/
 ks.exe
 setting.txt
 .vscode/
