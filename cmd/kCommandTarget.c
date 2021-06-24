@@ -120,7 +120,7 @@ uint32_t kCommandTarget_AutoBaudrate( void )
     return KS_ERROR;
 }
 
-uint32_t kCommandTarget_SetBaudrate( uint32_t baudrate )
+uint32_t kCommandTarget_SetBaudrate( int32_t baudrate )
 {
     if (baudrate < 0)
     {
@@ -143,7 +143,7 @@ uint32_t kCommandTarget_SetBaudrate( uint32_t baudrate )
     return KS_OK;
 }
 
-uint32_t kCommandTarget_SetUpdateRate( uint32_t updaterate )
+uint32_t kCommandTarget_SetUpdateRate( int32_t updaterate )
 {
     if (updaterate < 0)
     {
@@ -156,9 +156,9 @@ uint32_t kCommandTarget_SetUpdateRate( uint32_t updaterate )
     return KS_OK;
 }
 
-uint32_t kCommandTarget_SetMode( uint32_t mode )
+uint32_t kCommandTarget_SetMode( int32_t mode )
 {
-    if ((mode < 0) || (mode > 1))
+    if (mode < 0)
     {
         klogd("  >> set target mode error (%d)\n", mode);
         return KS_ERROR;
