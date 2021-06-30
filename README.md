@@ -27,5 +27,6 @@
 | -READ [ADDRESS] [REGISTER] [LENS]   | i2c multiple read data              |
 | -WRITE [ADDRESS] [REGISTER] [DATA]  | i2c single/multiple write data      |
   
-## kTerminal device program based on NRF52833-DK
-https://github.com/Hom-Wang/NRF52833-DK_kTerminal
+## kTerminal Target Firmware
+- NRF52833-DK : https://github.com/Hom-Wang/NRF52833-DK_kTerminal
+- KSIMU : https://github.com/KitSprout/KSIMU_kTerminal
