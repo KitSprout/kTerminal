@@ -90,7 +90,7 @@ uint32_t kCommand_Target( const char *commandString, const char *inputString )
 uint32_t kCommandTarget_CheckDevice( void )
 {
     uint32_t id = 0;
-    if (kSerial_DeviceCheck(&id) != KS_OK)
+    if (kserial_check_device(&id) != KS_OK)
     {
         klogd("  >> Device Not Found\n");
         return KS_ERROR;
@@ -109,7 +109,7 @@ uint32_t kCommandTarget_AutoBaudrate( void )
     {
         uint32_t id = 0;
         resetSerialBaudrate(baudratelist[searchOrder[i]]);
-        if (kSerial_DeviceCheck(&id) == KS_OK)
+        if (kserial_check_device(&id) == KS_OK)
         {
             klogd("  search baudrate = %d bps\n", s.cfg.baudrate);
             updateUartSetting(-1, -1);
@@ -129,11 +129,11 @@ uint32_t kCommandTarget_SetBaudrate( int32_t baudrate )
     }
     klogd("  >> set target baudrate %d bps ... ", baudrate);
     uint8_t param[2] = {KSCMD_R0_DEVICE_BAUDRATE, 4};
-    kSerial_SendPacket(param, &baudrate, param[1], KS_R0);
+    kserial_send_packet(param, &baudrate, param[1], KS_R0);
 
     uint32_t id = 0;
     resetSerialBaudrate(baudrate);
-    if (kSerial_DeviceCheck(&id) != KS_OK)
+    if (kserial_check_device(&id) != KS_OK)
     {
         klogd("ERROR\n");
         return KS_ERROR;
@@ -152,7 +152,7 @@ uint32_t kCommandTarget_SetUpdateRate( int32_t updaterate )
     }
     klogd("  >> set target update rate %d Hz\n", updaterate);
     uint8_t param[2] = {KSCMD_R0_DEVICE_RATE, 4};
-    kSerial_SendPacket(param, &updaterate, param[1], KS_R0);
+    kserial_send_packet(param, &updaterate, param[1], KS_R0);
     return KS_OK;
 }
 
@@ -164,7 +164,7 @@ uint32_t kCommandTarget_SetMode( int32_t mode )
         return KS_ERROR;
     }
     klogd("  >> set target mode %d\n", mode);
-    kSerial_SendCommand(KS_R0, KSCMD_R0_DEVICE_MDOE, mode, NULL);
+    kserial_send_command(KS_R0, KSCMD_R0_DEVICE_MDOE, mode, NULL);
     return KS_OK;
 }
 
@@ -183,7 +183,7 @@ uint32_t kCommandTarget_GetValue( const char *inputString )
         {
             klogd("  >> get target %s ... not found\n", inputString);
         }
-        kSerial_SendCommand(KS_R0, KSCMD_R0_DEVICE_GET, item, &ack);
+        kserial_send_command(KS_R0, KSCMD_R0_DEVICE_GET, item, &ack);
         uint32_t *ptr32 = (uint32_t*)ack.data;
         switch (item)
         {

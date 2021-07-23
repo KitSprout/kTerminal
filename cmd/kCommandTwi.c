@@ -32,7 +32,7 @@ uint32_t kCommand_TwiScanDevice( void )
 {
     // scan device address
     uint32_t devicenum;
-    devicenum = kSerial_TwiScanDevice(buf);
+    devicenum = kserial_twi_scandevice(buf);
     if (devicenum > 128)
     {
         klogd("  >> i2c secn device error\n");
@@ -55,7 +55,7 @@ uint32_t kCommand_TwiScanRegister( const char *addressString )
     uint32_t address = strtoul(addressString, NULL, 0);
 
     // scan device register
-    if (kSerial_TwiScanRegister(address, buf) != KS_OK)
+    if (kserial_twi_scanregister(address, buf) != KS_OK)
     {
         klogd("  >> i2c secn register error\n");
         return KS_ERROR;
@@ -85,7 +85,7 @@ uint32_t kCommand_TwiRead( const char *addressString, const char *registerString
     uint32_t deviceRegister = strtoul(registerString, NULL, 0);
     uint32_t readLength = strtoul(lenghtString, NULL, 0);
     readLength = (lenghtString != NULL) ? strtoul(lenghtString, NULL, 0) : 1;
-    if (kSerial_TwiReadRegs(slaveAddress, deviceRegister, buf, readLength) != KS_OK)
+    if (kserial_twi_readregs(slaveAddress, deviceRegister, buf, readLength) != KS_OK)
     {
         klogd("  >> i2c read error\n");
         return KS_ERROR;
@@ -113,7 +113,7 @@ uint32_t kCommand_TwiWrite( const char *addressString, const char *registerStrin
         klogd(" %02X", buf[i]);
     }
     klogd("\n");
-    kSerial_TwiWriteRegs(slaveAddress, deviceRegister, buf, length);
+    kserial_twi_writeregs(slaveAddress, deviceRegister, buf, length);
     return KS_OK;
 }
 

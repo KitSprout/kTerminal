@@ -18,7 +18,7 @@ add_executable(ks
     ${COMMAND_PATH}/kCommandTarget.c
     ${COMMAND_PATH}/kCommandTwi.c
 
-    ${KSERIAL_PATH}/kSerial.c
+    ${KSERIAL_PATH}/kserial.c
 )
 
 include_directories(

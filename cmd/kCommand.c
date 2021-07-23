@@ -349,10 +349,10 @@ uint32_t kCommand_UartTerminalProcess( const char **argv )
     uint32_t loop = KS_TRUE;
     uint32_t lens;
 
-    kSerial_RecvFlush();
+    kserial_flush_recv();
     while (loop)
     {
-        lens = kSerial_Recv((uint8_t*)buf, UART_RECV_MAX_BUFFER_SIZE);
+        lens = kserial_recv((uint8_t*)buf, UART_RECV_MAX_BUFFER_SIZE);
         if (lens != 0)
         {
             kputs(buf, lens);
@@ -372,12 +372,12 @@ uint32_t kCommand_UartTerminalProcess( const char **argv )
                 {
                     // TODO: save log
                     klogd("\n  >> save file\n");
-                    kSerial_Delay(100);
+                    kserial_delay(100);
                     break;
                 }
                 default:
                 {
-                    kSerial_SendByte(key);
+                    kserial_sendbyte(key);
                 }
             }
         }
@@ -407,7 +407,7 @@ uint32_t kCommand_UartKSerialRecv( const char **argv )
 
     while (loop)
     {
-        kSerial_ContinuousRead(&pk, &index, &count, &total);
+        kserial_read_continuous(&pk, &index, &count, &total);
         if (count != 0)
         {
             ts = tn;
@@ -451,7 +451,7 @@ uint32_t kCommand_UartKSerialRecv( const char **argv )
             {
                 // TODO: save log
                 klogd("\n  >> save file\n");
-                kSerial_Delay(100);
+                kserial_delay(100);
                 break;
             }
         }
