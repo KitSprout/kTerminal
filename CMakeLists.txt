@@ -21,6 +21,10 @@ add_executable(ks
     ${KSERIAL_PATH}/kserial.c
 )
 
+add_definitions(
+    # -DKSERIAL_VERSION_DEFINE="1.1.0"
+)
+
 include_directories(
     ${SOURCE_PATH}
     ${COMMAND_PATH}
